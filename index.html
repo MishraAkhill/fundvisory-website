@@ -679,34 +679,120 @@
 
 <!-- TICKER -->
 <div class="ticker-bar">
-  <div class="ticker-track">
-    <div class="tick-item"><span class="tick-name">RELIANCE</span><span class="tick-price">₹2,941</span><span class="tick-change up">+1.2%</span></div>
-    <div class="tick-item"><span class="tick-name">TCS</span><span class="tick-price">₹3,782</span><span class="tick-change up">+0.8%</span></div>
-    <div class="tick-item"><span class="tick-name">HDFC BANK</span><span class="tick-price">₹1,624</span><span class="tick-change down">−0.3%</span></div>
-    <div class="tick-item"><span class="tick-name">INFY</span><span class="tick-price">₹1,489</span><span class="tick-change up">+0.5%</span></div>
-    <div class="tick-item"><span class="tick-name">WIPRO</span><span class="tick-price">₹481</span><span class="tick-change up">+1.7%</span></div>
-    <div class="tick-item"><span class="tick-name">BAJFINANCE</span><span class="tick-price">₹7,210</span><span class="tick-change down">−0.6%</span></div>
-    <div class="tick-item"><span class="tick-name">HDFCBANK</span><span class="tick-price">₹1,624</span><span class="tick-change up">+0.4%</span></div>
-    <div class="tick-item"><span class="tick-name">ICICIBANK</span><span class="tick-price">₹1,198</span><span class="tick-change up">+1.1%</span></div>
-    <div class="tick-item"><span class="tick-name">MARUTI</span><span class="tick-price">₹12,340</span><span class="tick-change down">−0.2%</span></div>
-    <div class="tick-item"><span class="tick-name">NESTLEIND</span><span class="tick-price">₹2,180</span><span class="tick-change up">+0.9%</span></div>
-    <div class="tick-item"><span class="tick-name">TITAN</span><span class="tick-price">₹3,421</span><span class="tick-change up">+2.1%</span></div>
-    <div class="tick-item"><span class="tick-name">ASIANPAINT</span><span class="tick-price">₹2,875</span><span class="tick-change down">−0.4%</span></div>
-    <!-- duplicate for seamless loop -->
-    <div class="tick-item"><span class="tick-name">RELIANCE</span><span class="tick-price">₹2,941</span><span class="tick-change up">+1.2%</span></div>
-    <div class="tick-item"><span class="tick-name">TCS</span><span class="tick-price">₹3,782</span><span class="tick-change up">+0.8%</span></div>
-    <div class="tick-item"><span class="tick-name">HDFC BANK</span><span class="tick-price">₹1,624</span><span class="tick-change down">−0.3%</span></div>
-    <div class="tick-item"><span class="tick-name">INFY</span><span class="tick-price">₹1,489</span><span class="tick-change up">+0.5%</span></div>
-    <div class="tick-item"><span class="tick-name">WIPRO</span><span class="tick-price">₹481</span><span class="tick-change up">+1.7%</span></div>
-    <div class="tick-item"><span class="tick-name">BAJFINANCE</span><span class="tick-price">₹7,210</span><span class="tick-change down">−0.6%</span></div>
-    <div class="tick-item"><span class="tick-name">HDFCBANK</span><span class="tick-price">₹1,624</span><span class="tick-change up">+0.4%</span></div>
-    <div class="tick-item"><span class="tick-name">ICICIBANK</span><span class="tick-price">₹1,198</span><span class="tick-change up">+1.1%</span></div>
-    <div class="tick-item"><span class="tick-name">MARUTI</span><span class="tick-price">₹12,340</span><span class="tick-change down">−0.2%</span></div>
-    <div class="tick-item"><span class="tick-name">NESTLEIND</span><span class="tick-price">₹2,180</span><span class="tick-change up">+0.9%</span></div>
-    <div class="tick-item"><span class="tick-name">TITAN</span><span class="tick-price">₹3,421</span><span class="tick-change up">+2.1%</span></div>
-    <div class="tick-item"><span class="tick-name">ASIANPAINT</span><span class="tick-price">₹2,875</span><span class="tick-change down">−0.4%</span></div>
+  <div class="ticker-track" id="tickerTrack">
+    <!-- populated by JS -->
+    <div class="tick-item"><span class="tick-name" style="color:var(--muted);font-style:italic;font-size:11px">Loading live prices…</span></div>
   </div>
 </div>
+<script>
+(function() {
+  const STOCKS = [
+    {sym:'RELIANCE.NS', label:'RELIANCE'},
+    {sym:'TCS.NS',      label:'TCS'},
+    {sym:'HDFCBANK.NS', label:'HDFC BANK'},
+    {sym:'INFY.NS',     label:'INFY'},
+    {sym:'WIPRO.NS',    label:'WIPRO'},
+    {sym:'BAJFINANCE.NS',label:'BAJFINANCE'},
+    {sym:'ICICIBANK.NS',label:'ICICIBANK'},
+    {sym:'MARUTI.NS',   label:'MARUTI'},
+    {sym:'NESTLEIND.NS',label:'NESTLEIND'},
+    {sym:'TITAN.NS',    label:'TITAN'},
+    {sym:'ASIANPAINT.NS',label:'ASIANPAINT'},
+    {sym:'PIDILITIND.NS',label:'PIDILITIND'},
+    {sym:'LTIM.NS',     label:'LTIMindtree'},
+    {sym:'KOTAKBANK.NS',label:'KOTAK BANK'},
+    {sym:'SUNPHARMA.NS',label:'SUN PHARMA'},
+  ];
+
+  function fmtPrice(p) {
+    return '₹' + Number(p).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+
+  function buildTicker(quotes) {
+    const track = document.getElementById('tickerTrack');
+    if (!track) return;
+    // build items × 2 for seamless loop
+    let html = '';
+    for (let pass = 0; pass < 2; pass++) {
+      for (const q of quotes) {
+        const chg = q.regularMarketChangePercent || 0;
+        const cls = chg >= 0 ? 'up' : 'down';
+        const sign = chg >= 0 ? '+' : '';
+        html += `<div class="tick-item">
+          <span class="tick-name">${q._label}</span>
+          <span class="tick-price">${fmtPrice(q.regularMarketPrice)}</span>
+          <span class="tick-change ${cls}">${sign}${chg.toFixed(2)}%</span>
+        </div>`;
+      }
+    }
+    track.innerHTML = html;
+    // adjust animation speed based on count
+    const duration = Math.max(30, quotes.length * 4);
+    track.style.animationDuration = duration + 's';
+  }
+
+  async function fetchLive() {
+    const syms = STOCKS.map(s => s.sym).join(',');
+    const labelMap = Object.fromEntries(STOCKS.map(s => [s.sym, s.label]));
+
+    // Try Yahoo Finance via corsproxy.io
+    const yUrl = `https://query1.finance.yahoo.com/v8/finance/quote?symbols=${syms}&fields=symbol,regularMarketPrice,regularMarketChangePercent`;
+    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(yUrl)}`;
+
+    try {
+      const r = await fetch(proxyUrl, {signal: AbortSignal.timeout(6000)});
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const json = await r.json();
+      const quotes = (json?.quoteResponse?.result || []).map(q => ({
+        ...q,
+        _label: labelMap[q.symbol] || q.symbol.replace('.NS','')
+      })).filter(q => q.regularMarketPrice);
+      if (quotes.length > 0) { buildTicker(quotes); return; }
+    } catch(e) { /* fall through to direct */ }
+
+    // Fallback: try Yahoo Finance directly (works when CORS allows)
+    try {
+      const r2 = await fetch(`https://query2.finance.yahoo.com/v8/finance/quote?symbols=${syms}&fields=symbol,regularMarketPrice,regularMarketChangePercent`, {signal: AbortSignal.timeout(5000)});
+      if (!r2.ok) throw new Error('HTTP ' + r2.status);
+      const json2 = await r2.json();
+      const quotes2 = (json2?.quoteResponse?.result || []).map(q => ({
+        ...q,
+        _label: labelMap[q.symbol] || q.symbol.replace('.NS','')
+      })).filter(q => q.regularMarketPrice);
+      if (quotes2.length > 0) { buildTicker(quotes2); return; }
+    } catch(e) { /* fall through to static */ }
+
+    // Static fallback with disclaimer
+    const track = document.getElementById('tickerTrack');
+    if (track) {
+      const staticData = [
+        {_label:'RELIANCE', regularMarketPrice:2941, regularMarketChangePercent:1.2},
+        {_label:'TCS', regularMarketPrice:3782, regularMarketChangePercent:0.8},
+        {_label:'HDFC BANK', regularMarketPrice:1624, regularMarketChangePercent:-0.3},
+        {_label:'INFY', regularMarketPrice:1489, regularMarketChangePercent:0.5},
+        {_label:'WIPRO', regularMarketPrice:481, regularMarketChangePercent:1.7},
+        {_label:'BAJFINANCE', regularMarketPrice:7210, regularMarketChangePercent:-0.6},
+        {_label:'ICICIBANK', regularMarketPrice:1198, regularMarketChangePercent:1.1},
+        {_label:'MARUTI', regularMarketPrice:12340, regularMarketChangePercent:-0.2},
+        {_label:'NESTLEIND', regularMarketPrice:2180, regularMarketChangePercent:0.9},
+        {_label:'TITAN', regularMarketPrice:3421, regularMarketChangePercent:2.1},
+      ];
+      buildTicker(staticData);
+      // prepend disclaimer
+      track.insertAdjacentHTML('afterbegin', `<div class="tick-item"><span class="tick-name" style="color:#f59e0b;font-size:11px;font-weight:700">⚠ ILLUSTRATIVE · NOT LIVE</span></div>`);
+    }
+  }
+
+  // Run after page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', fetchLive);
+  } else {
+    fetchLive();
+  }
+  // Refresh every 5 minutes
+  setInterval(fetchLive, 5 * 60 * 1000);
+})();
+</script>
 
 <!-- NAV -->
 <nav>
