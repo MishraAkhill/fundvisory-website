@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fair Value Analyzer — Stock Analysis Tool</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0b1120;
+  --surface: #131d30;
+  --card: #1a2640;
+  --card2: #1e2d48;
+  --border: #2a3a56;
+  --border2: #334155;
+  --text: #e2e8f0;
+  --text2: #7e9ab5;
+  --text3: #4a6080;
+  --green: #10b981;
+  --green2: #059669;
+  --red: #ef4444;
+  --red2: #dc2626;
+  --yellow: #f59e0b;
+  --blue: #3b82f6;
+  --purple: #8b5cf6;
+  --accent: #4f8ef7;
+  --accent2: #3b7de8;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ---- PROGRESS BAR ---- */
+.progress-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.progress-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text3);
+  font-size: 13px;
+  font-weight: 500;
+}
+.progress-step.active { color: var(--accent); }
+.progress-step.done { color: var(--green); }
+.step-num {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+  background: var(--border);
+  color: var(--text3);
+}
+.progress-step.active .step-num { background: var(--accent); color: #fff; }
+.progress-step.done .step-num { background: var(--green); color: #fff; }
+.step-sep { flex: 1; height: 1px; background: var(--border); margin: 0 12px; min-width: 20px; }
+
+/* ---- PAGE WRAPPER ---- */
+.page { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+
+/* ---- UPLOAD SCREEN ---- */
+.upload-hero { text-align: center; padding: 60px 20px 40px; }
+.upload-hero h1 { font-size: 2.2rem; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 12px; }
+.upload-hero h1 span { color: var(--accent); }
+.upload-hero p { color: var(--text2); font-size: 1rem; max-width: 520px; margin: 0 auto; }
+
+.upload-zone {
+  border: 2px dashed var(--border2);
+  border-radius: 18px;
+  padding: 60px 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--surface);
+  position: relative;
+  max-width: 560px;
+  margin: 32px auto;
+}
+.upload-zone:hover, .upload-zone.drag-over {
+  border-color: var(--accent);
+  background: rgba(79,142,247,0.06);
+}
+.upload-icon { font-size: 3rem; margin-bottom: 16px; }
+.upload-zone h3 { font-size: 1.1rem; margin-bottom: 8px; }
+.upload-zone p { color: var(--text2); font-size: 13px; }
+.upload-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+.info-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 760px; margin: 0 auto; }
+.info-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.info-card .ic-icon { font-size: 1.5rem; margin-bottom: 8px; }
+.info-card h4 { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+.info-card p { font-size: 12px; color: var(--text2); }
+
+/* ---- CAPEX SCREEN ---- */
+.section-header { margin-bottom: 24px; }
+.section-header h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 6px; }
+.section-header p { color: var(--text2); }
+
+.capex-table-wrap { overflow-x: auto; }
+table.capex-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.capex-table th {
+  background: var(--card);
+  color: var(--text2);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 12px 16px;
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+}
+.capex-table th:first-child { text-align: left; }
+.capex-table td {
+  padding: 10px 16px;
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+.capex-table td:first-child { text-align: left; font-weight: 600; color: var(--text2); }
+.capex-table tr:last-child td { border-bottom: none; }
+.capex-table input[type=number] {
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 6px 10px;
+  width: 110px;
+  text-align: right;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.capex-table input[type=number]:focus { border-color: var(--accent); }
+.fcf-val { font-weight: 600; }
+.fcf-pos { color: var(--green); }
+.fcf-neg { color: var(--red); }
+
+/* ---- ASSUMPTIONS SCREEN ---- */
+.assumptions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.assumptions-group {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+.assumptions-group h3 {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text2);
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.input-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.input-row:last-child { margin-bottom: 0; }
+.input-row label { font-size: 13px; color: var(--text2); font-weight: 500; }
+.input-row .input-wrap { display: flex; align-items: center; gap: 8px; }
+.input-row input[type=number] {
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 8px 12px;
+  font-size: 14px;
+  width: 100px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.input-row input[type=number]:focus { border-color: var(--accent); }
+.input-row .unit { color: var(--text2); font-size: 13px; }
+.input-hint { font-size: 11px; color: var(--text3); }
+.assumptions-wide { grid-column: 1 / -1; }
+
+/* ---- DASHBOARD ---- */
+.company-header {
+  background: linear-gradient(135deg, var(--surface) 0%, var(--card) 100%);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 28px 32px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.company-name { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 4px; }
+.company-meta { display: flex; gap: 20px; flex-wrap: wrap; }
+.company-meta-item { }
+.company-meta-item .label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+.company-meta-item .value { font-size: 15px; font-weight: 600; }
+
+.verdict-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 50px;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ---- METRIC STRIPS ---- */
+.metrics-strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 24px; }
+.metric-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 16px;
+  text-align: center;
+}
+.metric-card .m-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.metric-card .m-val { font-size: 1.4rem; font-weight: 700; }
+.metric-card .m-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.c-green { color: var(--green); }
+.c-red { color: var(--red); }
+.c-yellow { color: var(--yellow); }
+.c-blue { color: var(--blue); }
+.c-purple { color: var(--purple); }
+.c-accent { color: var(--accent); }
+
+/* ---- CHARTS ---- */
+.charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.chart-card h3 { font-size: 13px; font-weight: 600; color: var(--text2); margin-bottom: 16px; }
+.chart-card canvas { max-height: 220px; }
+
+/* ---- VALUATION CARDS ---- */
+.section-title { font-size: 1rem; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+.valuation-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.val-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.val-card .vc-method { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.val-card .vc-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+.val-card .vc-range { font-size: 1.1rem; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+.val-card .vc-note { font-size: 11px; color: var(--text2); }
+.val-card .vc-vs {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+}
+.tag-under { background: rgba(16,185,129,0.12); color: var(--green); padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.tag-fair  { background: rgba(245,158,11,0.12); color: var(--yellow); padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.tag-over  { background: rgba(239,68,68,0.12); color: var(--red); padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+
+/* ---- IV RANGE BAR ---- */
+.iv-range-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.iv-range-section h3 { font-size: 14px; font-weight: 700; margin-bottom: 20px; }
+.iv-bar-wrap { position: relative; padding: 0 0 30px; }
+.iv-bar-track { height: 12px; background: var(--border); border-radius: 6px; position: relative; margin: 20px 0; }
+.iv-bar-fill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, rgba(16,185,129,0.5), rgba(16,185,129,0.8)); position: absolute; }
+.iv-marker {
+  position: absolute;
+  top: -8px;
+  width: 4px;
+  height: 28px;
+  border-radius: 2px;
+  transform: translateX(-50%);
+}
+.iv-marker-label {
+  position: absolute;
+  top: 24px;
+  font-size: 11px;
+  font-weight: 600;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.iv-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text3); margin-top: 4px; }
+.iv-label-anchors { display: flex; justify-content: space-between; font-size: 11px; color: var(--text2); font-weight: 600; margin-bottom: 2px; }
+
+/* ---- VERDICT BANNER ---- */
+.verdict-banner {
+  border-radius: var(--radius);
+  padding: 24px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.verdict-banner .vb-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; margin-bottom: 4px; }
+.verdict-banner .vb-verdict { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px; }
+.verdict-banner .vb-detail { font-size: 14px; opacity: 0.8; max-width: 400px; margin-top: 4px; }
+.vb-numbers { text-align: right; }
+.vb-numbers .vb-n-label { font-size: 11px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.5px; }
+.vb-numbers .vb-n-val { font-size: 1.2rem; font-weight: 700; }
+
+/* ---- CAGR TABLE ---- */
+.cagr-section { margin-bottom: 24px; }
+.cagr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.cagr-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.cagr-card h3 { padding: 14px 16px; font-size: 13px; font-weight: 600; background: var(--card); border-bottom: 1px solid var(--border); }
+.cagr-rows { }
+.cagr-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--border); }
+.cagr-row:last-child { border-bottom: none; }
+.cagr-row .cr-label { font-size: 13px; color: var(--text2); }
+.cagr-row .cr-vals { display: flex; gap: 20px; }
+.cr-val { text-align: right; }
+.cr-val .period { font-size: 10px; color: var(--text3); }
+.cr-val .val { font-size: 13px; font-weight: 600; }
+
+/* ---- RATIOS TABLE ---- */
+.ratios-section { margin-bottom: 24px; }
+.ratios-table-wrap { overflow-x: auto; }
+table.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  font-size: 13px;
+}
+.data-table th {
+  background: var(--card);
+  color: var(--text2);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 10px 14px;
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.data-table th:first-child { text-align: left; min-width: 160px; }
+.data-table td {
+  padding: 9px 14px;
+  text-align: right;
+  border-bottom: 1px solid rgba(42,58,86,0.5);
+  color: var(--text);
+}
+.data-table td:first-child { text-align: left; color: var(--text2); font-weight: 500; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: rgba(79,142,247,0.04); }
+
+/* ---- CHECKLIST ---- */
+.checklist-section { margin-bottom: 24px; }
+.checklist-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+.checklist-item:nth-child(even) { border-right: none; }
+.checklist-item:nth-last-child(-n+2) { border-bottom: none; }
+.check-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+.check-text h4 { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.check-text p { font-size: 12px; color: var(--text2); }
+.checklist-score {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.cs-label { font-size: 14px; font-weight: 600; }
+.cs-score { font-size: 1.6rem; font-weight: 800; }
+
+/* ---- DISCLAIMER ---- */
+.disclaimer {
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.2);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  font-size: 12px;
+  color: var(--text2);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+/* ---- DATA WARNING BANNER ---- */
+.data-warning {
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  font-size: 13px;
+  margin-bottom: 20px;
+  line-height: 1.6;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.data-warning.warn-yellow {
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.35);
+  color: #fcd34d;
+}
+.data-warning.warn-red {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.35);
+  color: #fca5a5;
+}
+.data-warning strong { display: block; margin-bottom: 2px; font-size: 13px; }
+.data-warning ul { margin: 6px 0 0 16px; font-size: 12px; opacity: 0.85; }
+.data-warning ul li { margin-bottom: 2px; }
+
+/* ---- BUTTONS ---- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent2); }
+.btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
+.btn-ghost:hover { background: var(--surface); color: var(--text); }
+.btn-row { display: flex; gap: 12px; align-items: center; margin-top: 28px; }
+
+/* ---- LOGO / NAV ---- */
+.nav {
+  padding: 16px 32px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-brand { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.nav-brand span { color: var(--accent); }
+.nav-reset { font-size: 12px; color: var(--text3); cursor: pointer; border: none; background: none; padding: 0; }
+.nav-reset:hover { color: var(--text2); }
+
+/* ---- TAG ---- */
+.tag { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.tag-green { background: rgba(16,185,129,0.15); color: var(--green); }
+.tag-red { background: rgba(239,68,68,0.15); color: var(--red); }
+.tag-yellow { background: rgba(245,158,11,0.15); color: var(--yellow); }
+.tag-blue { background: rgba(59,130,246,0.15); color: var(--blue); }
+
+/* ---- DIVIDER ---- */
+.section-divider { margin: 32px 0 20px; }
+.section-divider h2 { font-size: 14px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; gap: 10px; }
+.section-divider h2::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 768px) {
+  .metrics-strip { grid-template-columns: repeat(3, 1fr); }
+  .valuation-grid { grid-template-columns: 1fr 1fr; }
+  .charts-grid { grid-template-columns: 1fr; }
+  .assumptions-grid { grid-template-columns: 1fr; }
+  .checklist-grid { grid-template-columns: 1fr; }
+  .info-cards { grid-template-columns: 1fr; }
+  .company-header { flex-direction: column; }
+  .cagr-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">📊 <span>Fair Value</span> Analyzer</div>
+  <button class="nav-reset" onclick="resetApp()">↩ Start Over</button>
+</nav>
+
+<div id="progress-bar"></div>
+<div id="root"></div>
+
+<script>
+// =============================================
+// 1. STATE
+// =============================================
+const state = {
+  screen: 'upload',   // upload | capex | assumptions | dashboard
+  rawData: null,
+  capex: [],
+  assumptions: {
+    fcfLowY1: 10, fcfLowY2: 7, fcfLowY3: 5,
+    fcfHighY1: 15, fcfHighY2: 12, fcfHighY3: 8,
+    discountRate: 12, terminalGrowth: 3,
+    npCAGR: 12, exitPE: 20
+  },
+  analysis: null
+};
+
+const chartInstances = {};
+
+// =============================================
+// 2. UTILITIES
+// =============================================
+const n = (v, dec=1) => (v === null || v === undefined || isNaN(v)) ? null : parseFloat(v.toFixed(dec));
+const fmtCr = (v) => {
+  if (v === null || v === undefined || isNaN(v)) return '—';
+  const abs = Math.abs(v);
+  const sign = v < 0 ? '-' : '';
+  if (abs >= 100000) return sign + '₹' + (abs/100000).toFixed(1) + 'L Cr';
+  if (abs >= 1000)   return sign + '₹' + Math.round(abs/1000) + 'K Cr';
+  return sign + '₹' + Math.round(abs).toLocaleString('en-IN') + ' Cr';
+};
+const fmtNum = (v) => v === null ? '—' : v.toLocaleString('en-IN', {maximumFractionDigits: 0});
+const pct = (v, dec=1) => v === null ? '—' : (v >= 0 ? '' : '') + v.toFixed(dec) + '%';
+const pctColor = (v, reverse=false) => {
+  if (v === null) return '';
+  const pos = reverse ? v < 0 : v > 0;
+  return pos ? 'c-green' : 'c-red';
+};
+const ratioFmt = (v) => v === null ? '—' : v.toFixed(2) + 'x';
+const roundCr = (v) => v !== null ? Math.round(v) : null;
+
+const avg = (arr, count) => {
+  const valid = (count ? arr.slice(-count) : arr).filter(v => v !== null && !isNaN(v));
+  return valid.length ? valid.reduce((a, b) => a + b, 0) / valid.length : null;
+};
+
+const cagr = (arr) => {
+  const valid = arr.filter(v => v !== null && v > 0);
+  if (valid.length < 2) return null;
+  const end = valid[valid.length - 1];
+  const start = valid[0];
+  const yrs = valid.length - 1;
+  if (start <= 0 || end <= 0) return null;
+  return (Math.pow(end / start, 1 / yrs) - 1) * 100;
+};
+
+const cagrN = (arr, n) => {
+  const valid = arr.filter(v => v !== null && v > 0);
+  if (valid.length < 2) return null;
+  const slice = valid.slice(-Math.min(n + 1, valid.length));
+  if (slice.length < 2) return null;
+  const end = slice[slice.length - 1];
+  const start = slice[0];
+  const yrs = slice.length - 1;
+  if (start <= 0) return null;
+  return (Math.pow(end / start, 1 / yrs) - 1) * 100;
+};
+
+function pv(cf, rate) { // present value of a cash flow array
+  return cf.reduce((sum, c, i) => sum + c / Math.pow(1 + rate, i + 1), 0);
+}
+
+// =============================================
+// 3. EXCEL PARSER
+// =============================================
+function parseDataSheet(buffer) {
+  const wb = XLSX.read(buffer, { type: 'array', cellDates: false });
+  const wsName = wb.SheetNames.find(n => n.toLowerCase().includes('data')) || wb.SheetNames[0];
+  const ws = wb.Sheets[wsName];
+  const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null, raw: true });
+
+  // Build row label map (column A)
+  const rowByLabel = {};
+  raw.forEach((row, i) => {
+    const label = (row[0] == null ? '' : String(row[0])).trim();
+    if (label && !rowByLabel[label]) rowByLabel[label] = i;
+  });
+
+  // Find section boundaries
+  let plStart = -1, bsStart = -1, cfStart = -1;
+  raw.forEach((row, i) => {
+    const label = (row[0] == null ? '' : String(row[0])).trim();
+    if (label === 'PROFIT & LOSS') plStart = i;
+    if (label === 'BALANCE SHEET') bsStart = i;
+    if (label.startsWith('CASH FLOW')) cfStart = i;
+  });
+
+  // Find a labeled row within a section
+  const findRow = (secStart, label, max = 25) => {
+    for (let i = secStart; i < secStart + max && i < raw.length; i++) {
+      if ((raw[i][0] == null ? '' : String(raw[i][0])).trim() === label) return i;
+    }
+    return -1;
+  };
+
+  // Extract numeric values from a row (columns 1-10)
+  const vals = (rowIdx, count = 10) => {
+    if (rowIdx < 0) return Array(count).fill(null);
+    const row = raw[rowIdx] || [];
+    return Array.from({ length: count }, (_, j) => {
+      const v = row[j + 1];
+      if (v === null || v === undefined || v === '') return null;
+      const n = parseFloat(v);
+      return isNaN(n) ? null : n;
+    });
+  };
+
+  // Parse years from Report Date row
+  const dateRowIdx = findRow(plStart, 'Report Date');
+  const dateRow = raw[dateRowIdx] || [];
+  const years = dateRow.slice(1, 11).map(v => {
+    if (!v) return null;
+    if (typeof v === 'number') {
+      // Excel serial date → year
+      const d = XLSX.SSF.parse_date_code(v);
+      return d ? d.y : null;
+    }
+    if (typeof v === 'string') {
+      const m = v.match(/(\d{4})/);
+      return m ? parseInt(m[1]) : null;
+    }
+    return null;
+  }).filter(Boolean);
+
+  // META
+  const getMetaVal = (label) => {
+    const idx = rowByLabel[label];
+    return idx !== undefined ? parseFloat(raw[idx][1]) || null : null;
+  };
+  const getMetaStr = (label) => {
+    const idx = rowByLabel[label];
+    return idx !== undefined ? String(raw[idx][1] || '') : '';
+  };
+
+  const meta = {
+    company: getMetaStr('COMPANY NAME'),
+    shares: getMetaVal('Number of shares'),  // in Cr
+    faceValue: getMetaVal('Face Value'),
+    price: getMetaVal('Current Price'),
+    mktCap: getMetaVal('Market Capitalization'),
+  };
+
+  // P&L
+  const pl = {
+    sales:         vals(findRow(plStart, 'Sales')),
+    rawMaterial:   vals(findRow(plStart, 'Raw Material Cost')),
+    changeInInv:   vals(findRow(plStart, 'Change in Inventory')),
+    power:         vals(findRow(plStart, 'Power and Fuel')),
+    otherMfr:      vals(findRow(plStart, 'Other Mfr. Exp')),
+    employee:      vals(findRow(plStart, 'Employee Cost')),
+    sellingAdmin:  vals(findRow(plStart, 'Selling and admin')),
+    otherExp:      vals(findRow(plStart, 'Other Expenses')),
+    otherIncome:   vals(findRow(plStart, 'Other Income')),
+    depreciation:  vals(findRow(plStart, 'Depreciation')),
+    interest:      vals(findRow(plStart, 'Interest')),
+    pbt:           vals(findRow(plStart, 'Profit before tax')),
+    tax:           vals(findRow(plStart, 'Tax')),
+    netProfit:     vals(findRow(plStart, 'Net profit')),
+    dividend:      vals(findRow(plStart, 'Dividend Amount')),
+  };
+
+  // Balance Sheet
+  const bs = {
+    equity:      vals(findRow(bsStart, 'Equity Share Capital')),
+    reserves:    vals(findRow(bsStart, 'Reserves')),
+    borrowings:  vals(findRow(bsStart, 'Borrowings')),
+    netBlock:    vals(findRow(bsStart, 'Net Block')),
+    investments: vals(findRow(bsStart, 'Investments')),
+    receivables: vals(findRow(bsStart, 'Receivables')),
+    inventory:   vals(findRow(bsStart, 'Inventory')),
+    cash:        vals(findRow(bsStart, 'Cash & Bank')),
+  };
+
+  // Cash Flow
+  const cf = {
+    operating: vals(findRow(cfStart, 'Cash from Operating Activity')),
+    investing:  vals(findRow(cfStart, 'Cash from Investing Activity')),
+    financing:  vals(findRow(cfStart, 'Cash from Financing Activity')),
+  };
+
+  // Historical prices
+  const priceRowIdx = rowByLabel['PRICE:'];
+  const prices = priceRowIdx !== undefined ? vals(priceRowIdx) : Array(10).fill(null);
+
+  return { meta, years, pl, bs, cf, prices };
+}
+
+// =============================================
+// 4. FINANCIAL COMPUTATIONS
+// =============================================
+function computeAnalysis(data, capex, assum) {
+  const { pl, bs, cf, meta, years } = data;
+  const cnt = years.length;
+
+  // Helper: zip-map two arrays safely
+  const zmap = (a, b, fn) => a.map((v, i) => (v !== null && b[i] !== null) ? fn(v, b[i]) : null);
+
+  // Equity
+  const totalEquity = bs.equity.map((e, i) => e !== null && bs.reserves[i] !== null ? e + bs.reserves[i] : null);
+  const borrowings  = bs.borrowings.map(v => v || 0);
+
+  // Operating Profit = Sales - all operating expenses
+  const opProfit = pl.sales.map((s, i) => {
+    if (!s) return null;
+    const exp = (pl.rawMaterial[i] || 0) + (pl.changeInInv[i] || 0) +
+                (pl.power[i] || 0) + (pl.otherMfr[i] || 0) +
+                (pl.employee[i] || 0) + (pl.sellingAdmin[i] || 0) + (pl.otherExp[i] || 0);
+    return s - exp;
+  });
+
+  const opMargin  = pl.sales.map((s, i) => s ? opProfit[i] / s * 100 : null);
+  const pbtMargin = pl.sales.map((s, i) => s ? pl.pbt[i] / s * 100 : null);
+  const netMargin = pl.sales.map((s, i) => s && pl.netProfit[i] !== null ? pl.netProfit[i] / s * 100 : null);
+
+  const roe  = pl.netProfit.map((np, i) => totalEquity[i] ? np / totalEquity[i] * 100 : null);
+  const roce = pl.pbt.map((pbt, i) => {
+    const cap = (totalEquity[i] || 0) + borrowings[i];
+    return cap ? (pbt + (pl.interest[i] || 0)) / cap * 100 : null;
+  });
+  const de = borrowings.map((b, i) => totalEquity[i] ? b / totalEquity[i] : 0);
+
+  const fcf = cf.operating.map((ocf, i) => ocf !== null ? ocf - (capex[i] || 0) : null);
+  const cfo2sales = cf.operating.map((ocf, i) => pl.sales[i] ? ocf / pl.sales[i] * 100 : null);
+  const fcf2np    = fcf.map((f, i) => pl.netProfit[i] ? f / pl.netProfit[i] * 100 : null);
+
+  const interestCov = pl.pbt.map((pbt, i) => {
+    const int = pl.interest[i] || 0;
+    return int > 0.5 ? (pbt + int) / int : null;
+  });
+  const debtorDays = bs.receivables.map((r, i) => pl.sales[i] ? r / pl.sales[i] * 365 : null);
+  const invTurnover = pl.sales.map((s, i) => bs.inventory[i] ? s / bs.inventory[i] : null);
+
+  const eps = pl.netProfit.map(np => meta.shares ? np / meta.shares : null); // ₹ per share (NP in Cr / shares in Cr = ₹)
+
+  // PE ratio (historical price / EPS)
+  const pe = data.prices.map((p, i) => (p && eps[i]) ? p / eps[i] : null);
+
+  // CAGRs
+  const salesCAGR3  = cagrN(pl.sales, 3);
+  const salesCAGR5  = cagrN(pl.sales, 5);
+  const salesCAGR10 = cagrN(pl.sales, 10);
+  const npCAGR3     = cagrN(pl.netProfit, 3);
+  const npCAGR5     = cagrN(pl.netProfit, 5);
+  const npCAGR10    = cagrN(pl.netProfit, 10);
+  const pbtCAGR5    = cagrN(pl.pbt, 5);
+  const pbtCAGR10   = cagrN(pl.pbt, 10);
+  const fcfCAGR5    = cagrN(fcf.filter(v => v !== null && v > 0).length >= 3 ? fcf : [], 5);
+  const dividendCAGR5 = cagrN(pl.dividend, 5);
+
+  // Averages
+  const avgROE5  = avg(roe, 5);
+  const avgDE5   = avg(de, 5);
+  const avgNM5   = avg(netMargin, 5);
+  const avgOM5   = avg(opMargin, 5);
+  const avgNP5   = avg(pl.netProfit, 5);
+  const avgFCF3  = avg(fcf, 3);
+
+  const latestNP  = pl.netProfit[cnt - 1];
+  const latestCap = meta.mktCap;
+
+  // NET CASH: Cash + Investments - Borrowings (latest)
+  const latestCash   = (bs.cash[cnt - 1] || 0) + (bs.investments[cnt - 1] || 0);
+  const latestDebt   = borrowings[cnt - 1] || 0;
+  const netCash      = latestCash - latestDebt;
+
+  const baseFCF = (avgFCF3 && avgFCF3 > 0) ? avgFCF3 : latestNP * 0.7;
+
+  // ---- DCF VALUATION ----
+  const dcfValue = (() => {
+    const { fcfLowY1, fcfLowY2, fcfLowY3, discountRate, terminalGrowth } = assum;
+    let fcfT = baseFCF;
+    let pvSum = 0;
+    for (let t = 1; t <= 10; t++) {
+      const g = t <= 3 ? fcfLowY1 : t <= 6 ? fcfLowY2 : fcfLowY3;
+      fcfT = fcfT * (1 + g / 100);
+      pvSum += fcfT / Math.pow(1 + discountRate / 100, t);
+    }
+    const tv = fcfT * (1 + terminalGrowth / 100) / ((discountRate - terminalGrowth) / 100);
+    const pvTV = tv / Math.pow(1 + discountRate / 100, 10);
+    return pvSum + pvTV + netCash;
+  })();
+
+  // ---- DHANDHO VALUATION (Low & High) ----
+  const dhandhoLow = (() => {
+    const { fcfLowY1, fcfLowY2, fcfLowY3, discountRate } = assum;
+    let fcfT = baseFCF; let pvSum = 0;
+    for (let t = 1; t <= 10; t++) {
+      const g = t <= 3 ? fcfLowY1 : t <= 6 ? fcfLowY2 : fcfLowY3;
+      fcfT = fcfT * (1 + g / 100);
+      pvSum += fcfT / Math.pow(1 + discountRate / 100, t);
+    }
+    return pvSum + netCash;
+  })();
+
+  const dhandhoHigh = (() => {
+    const { fcfHighY1, fcfHighY2, fcfHighY3, discountRate } = assum;
+    let fcfT = baseFCF; let pvSum = 0;
+    for (let t = 1; t <= 10; t++) {
+      const g = t <= 3 ? fcfHighY1 : t <= 6 ? fcfHighY2 : fcfHighY3;
+      fcfT = fcfT * (1 + g / 100);
+      pvSum += fcfT / Math.pow(1 + discountRate / 100, t);
+    }
+    return pvSum + netCash;
+  })();
+
+  // ---- BEN GRAHAM VALUATION ----
+  const grahamLow = (() => {
+    const growthLow = Math.max(salesCAGR5 || 5, 0);
+    return avgNP5 * (8.5 + 2 * growthLow);
+  })();
+  const grahamHigh = (() => {
+    const growthHigh = Math.max(pbtCAGR5 || npCAGR5 || 8, 0);
+    return avgNP5 * (8.5 + 2 * growthHigh);
+  })();
+
+  // ---- EXPECTED RETURNS VALUATION ----
+  const expectedReturn = (() => {
+    const { npCAGR, exitPE, discountRate } = assum;
+    const projectedNP = latestNP * Math.pow(1 + npCAGR / 100, 10);
+    const projectedMktCap = projectedNP * exitPE;
+    return projectedMktCap / Math.pow(1 + discountRate / 100, 10);
+  })();
+
+  // ---- INTRINSIC VALUE RANGE ----
+  const allVals = [dhandhoLow, dhandhoHigh, grahamLow, grahamHigh, dcfValue, expectedReturn].filter(v => v > 0);
+  const ivLow  = Math.min(...allVals);
+  const ivHigh = Math.max(...allVals);
+  const ivMid  = (ivLow + ivHigh) / 2;
+
+  const upside = latestCap ? (ivMid - latestCap) / latestCap * 100 : null;
+
+  let verdict, verdictColor, verdictBg;
+  if (latestCap < ivLow * 0.75)     { verdict = 'Strong Buy 🚀'; verdictColor = '#fff'; verdictBg = '#059669'; }
+  else if (latestCap < ivLow)        { verdict = 'Buy ✅'; verdictColor = '#fff'; verdictBg = '#10b981'; }
+  else if (latestCap <= ivHigh)      { verdict = 'Fair Value / Hold ⚖️'; verdictColor = '#1a2640'; verdictBg = '#f59e0b'; }
+  else if (latestCap <= ivHigh*1.2)  { verdict = 'Slightly Overvalued ⚠️'; verdictColor = '#fff'; verdictBg = '#ef7c22'; }
+  else                               { verdict = 'Overvalued — Avoid 🚫'; verdictColor = '#fff'; verdictBg = '#ef4444'; }
+
+  // ---- BUFFETT CHECKLIST ----
+  const positivePBT = pl.pbt.filter(v => v !== null).every(v => v > 0);
+  const avgIC5 = avg(interestCoverage.filter(v => v !== null), 5);
+  const positiveFCFYears = fcf.filter(v => v !== null && v > 0).length;
+  const totalFCFYears = fcf.filter(v => v !== null).length;
+  const dividendYears = pl.dividend.filter(v => v !== null && v > 0).length;
+  const totalDivYears = pl.dividend.filter(v => v !== null).length;
+  const avgFCF2NP5 = avg(fcf2np, 5);
+
+  const checklist = [
+    {
+      label: 'Consistent Profitability',
+      desc: `Positive PBT in all ${pl.pbt.filter(v=>v!==null).length} reported years`,
+      pass: positivePBT,
+    },
+    {
+      label: 'Strong Return on Equity',
+      desc: `5-yr avg ROE: ${avgROE5 !== null ? avgROE5.toFixed(1) + '%' : '—'} (target > 15%)`,
+      pass: avgROE5 !== null && avgROE5 > 15,
+    },
+    {
+      label: 'Conservative Financing',
+      desc: `5-yr avg Debt/Equity: ${avgDE5 !== null ? avgDE5.toFixed(2) + 'x' : '—'} (target < 0.5x)`,
+      pass: avgDE5 !== null && avgDE5 < 0.5,
+    },
+    {
+      label: 'Solid Revenue Growth',
+      desc: `10-yr Sales CAGR: ${salesCAGR10 !== null ? salesCAGR10.toFixed(1) + '%' : '—'} (target > 10%)`,
+      pass: salesCAGR10 !== null && salesCAGR10 > 10,
+    },
+    {
+      label: 'Solid Profit Growth',
+      desc: `10-yr Net Profit CAGR: ${npCAGR10 !== null ? npCAGR10.toFixed(1) + '%' : '—'} (target > 10%)`,
+      pass: npCAGR10 !== null && npCAGR10 > 10,
+    },
+    {
+      label: 'Good Interest Coverage',
+      desc: `5-yr avg coverage: ${avgIC5 !== null ? avgIC5.toFixed(1) + 'x' : avgDE5 < 0.1 ? 'Debt-free' : '—'} (target > 5x)`,
+      pass: (avgIC5 !== null && avgIC5 > 5) || avgDE5 < 0.05,
+    },
+    {
+      label: 'Positive Free Cash Flow',
+      desc: `FCF positive in ${positiveFCFYears} of ${totalFCFYears} years (target ≥ 70%)`,
+      pass: totalFCFYears > 0 && positiveFCFYears / totalFCFYears >= 0.7,
+    },
+    {
+      label: 'Consistent Dividends',
+      desc: `Dividends paid in ${dividendYears} of ${totalDivYears} years`,
+      pass: totalDivYears > 0 && dividendYears / totalDivYears >= 0.7,
+    },
+    {
+      label: 'Low Capex Intensity',
+      desc: `5-yr avg FCF/Net Profit: ${avgFCF2NP5 !== null ? avgFCF2NP5.toFixed(0) + '%' : '—'} (target > 40%)`,
+      pass: avgFCF2NP5 !== null && avgFCF2NP5 > 40,
+    },
+    {
+      label: 'Improving Net Margins',
+      desc: `Recent 3-yr avg: ${avg(netMargin,3)?.toFixed(1)}%, vs 7-yr avg: ${avg(netMargin,7)?.toFixed(1)}%`,
+      pass: (avg(netMargin, 3) || 0) >= (avg(netMargin, 7) || 0),
+    },
+  ];
+
+  return {
+    per: { opProfit, opMargin, pbtMargin, netMargin, roe, roce, de, fcf, cfo2sales, fcf2np, interestCov, debtorDays, invTurnover, eps, pe },
+    cagrs: { salesCAGR3, salesCAGR5, salesCAGR10, npCAGR3, npCAGR5, npCAGR10, pbtCAGR5, pbtCAGR10, fcfCAGR5, dividendCAGR5 },
+    avgs: { avgROE5, avgDE5, avgNM5, avgOM5, avgNP5, avgFCF3 },
+    vals: { dcfValue, dhandhoLow, dhandhoHigh, grahamLow, grahamHigh, expectedReturn },
+    ivRange: { low: ivLow, high: ivHigh, mid: ivMid },
+    upside, verdict, verdictColor, verdictBg,
+    checklist, netCash, baseFCF, latestNP,
+    latestCurrentPE: pe[cnt-1] || null,
+    avgPE5: avg(pe.filter(v => v !== null), 5),
+  };
+}
+
+// =============================================
+// 5. CHART RENDERING
+// =============================================
+const CHART_COLORS = {
+  blue:   '#4f8ef7',
+  green:  '#10b981',
+  yellow: '#f59e0b',
+  red:    '#ef4444',
+  purple: '#8b5cf6',
+  teal:   '#14b8a6',
+};
+Chart.defaults.color = '#7e9ab5';
+Chart.defaults.borderColor = '#2a3a56';
+
+function mkChart(id, config) {
+  if (chartInstances[id]) chartInstances[id].destroy();
+  const el = document.getElementById(id);
+  if (!el) return;
+  chartInstances[id] = new Chart(el.getContext('2d'), config);
+}
+
+function renderCharts(data, analysis) {
+  const { years, pl, cf } = data;
+  const { per } = analysis;
+
+  const commonOptions = {
+    responsive: true, maintainAspectRatio: true,
+    plugins: { legend: { position: 'top', labels: { boxWidth: 10, padding: 12, font: { size: 11 } } } },
+    scales: {
+      x: { grid: { color: 'rgba(42,58,86,0.5)' }, ticks: { font: { size: 10 } } },
+      y: { grid: { color: 'rgba(42,58,86,0.5)' }, ticks: { font: { size: 10 } } }
+    }
+  };
+
+  // Chart 1: Revenue & Net Profit
+  mkChart('chart-revenue', {
+    data: {
+      labels: years,
+      datasets: [
+        {
+          type: 'bar', label: 'Revenue (Cr)', data: pl.sales.map(roundCr),
+          backgroundColor: 'rgba(79,142,247,0.3)', borderColor: CHART_COLORS.blue, borderWidth: 1, yAxisID: 'y',
+        },
+        {
+          type: 'line', label: 'Net Profit (Cr)', data: pl.netProfit.map(roundCr),
+          borderColor: CHART_COLORS.green, backgroundColor: 'rgba(16,185,129,0.1)',
+          borderWidth: 2, pointRadius: 3, fill: true, tension: 0.3, yAxisID: 'y2',
+        }
+      ]
+    },
+    options: {
+      ...commonOptions,
+      scales: {
+        x: commonOptions.scales.x,
+        y:  { ...commonOptions.scales.y, position: 'left',  title: { display: true, text: 'Revenue (₹Cr)', font:{size:10} } },
+        y2: { ...commonOptions.scales.y, position: 'right', title: { display: true, text: 'Net Profit (₹Cr)', font:{size:10} }, grid: { drawOnChartArea: false } }
+      }
+    }
+  });
+
+  // Chart 2: Margins
+  mkChart('chart-margins', {
+    type: 'line',
+    data: {
+      labels: years,
+      datasets: [
+        { label: 'Operating Margin', data: per.opMargin.map(v => v?.toFixed(1)), borderColor: CHART_COLORS.blue, borderWidth: 2, pointRadius: 3, tension: 0.3, fill: false },
+        { label: 'PBT Margin',       data: per.pbtMargin.map(v => v?.toFixed(1)), borderColor: CHART_COLORS.yellow, borderWidth: 2, pointRadius: 3, tension: 0.3, fill: false },
+        { label: 'Net Margin',       data: per.netMargin.map(v => v?.toFixed(1)), borderColor: CHART_COLORS.green, borderWidth: 2, pointRadius: 3, tension: 0.3, fill: false },
+      ]
+    },
+    options: {
+      ...commonOptions,
+      plugins: { ...commonOptions.plugins },
+      scales: { ...commonOptions.scales, y: { ...commonOptions.scales.y, ticks: { callback: v => v + '%', font:{size:10} } } }
+    }
+  });
+
+  // Chart 3: FCF
+  mkChart('chart-fcf', {
+    type: 'bar',
+    data: {
+      labels: years,
+      datasets: [
+        {
+          label: 'Operating CF (Cr)', data: cf.operating.map(roundCr),
+          backgroundColor: 'rgba(79,142,247,0.4)', borderColor: CHART_COLORS.blue, borderWidth: 1,
+        },
+        {
+          label: 'Free Cash Flow (Cr)', data: per.fcf.map(roundCr),
+          backgroundColor: per.fcf.map(v => v >= 0 ? 'rgba(16,185,129,0.6)' : 'rgba(239,68,68,0.6)'),
+          borderColor: per.fcf.map(v => v >= 0 ? CHART_COLORS.green : CHART_COLORS.red),
+          borderWidth: 1,
+        }
+      ]
+    },
+    options: commonOptions
+  });
+
+  // Chart 4: ROE & ROCE
+  mkChart('chart-roe', {
+    type: 'line',
+    data: {
+      labels: years,
+      datasets: [
+        { label: 'ROE %',  data: per.roe.map(v => v?.toFixed(1)),  borderColor: CHART_COLORS.purple, borderWidth: 2, pointRadius: 3, tension: 0.3, fill: false },
+        { label: 'ROCE %', data: per.roce.map(v => v?.toFixed(1)), borderColor: CHART_COLORS.teal,   borderWidth: 2, pointRadius: 3, tension: 0.3, fill: false },
+      ]
+    },
+    options: {
+      ...commonOptions,
+      scales: { ...commonOptions.scales, y: { ...commonOptions.scales.y, ticks: { callback: v => v + '%', font:{size:10} } } }
+    }
+  });
+}
+
+// =============================================
+// 6. IV RANGE BAR
+// =============================================
+function renderIVBar(analysis, mktCap) {
+  const { ivRange, vals } = analysis;
+  const { low, high } = ivRange;
+  const total = high * 1.4;
+
+  const pct = v => Math.min(Math.max((v / total) * 100, 0), 100);
+  const mktPct = pct(mktCap);
+  const lowPct  = pct(low);
+  const highPct = pct(high);
+
+  const tag = mktCap < low ? 'tag-under' : mktCap <= high ? 'tag-fair' : 'tag-over';
+  const tagLabel = mktCap < low ? 'Undervalued' : mktCap <= high ? 'Fairly Valued' : 'Overvalued';
+
+  return `
+  <div class="iv-range-section">
+    <h3>Intrinsic Value Range  <span class="${tag}" style="margin-left:8px">${tagLabel}</span></h3>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;text-align:center">
+      ${[
+        ['Dhandho IV (Low)', vals.dhandhoLow],
+        ['DCF', vals.dcfValue],
+        ['Ben Graham (Low)', vals.grahamLow],
+        ['Dhandho IV (High)', vals.dhandhoHigh],
+        ['Expected Return', vals.expectedReturn],
+        ['Ben Graham (High)', vals.grahamHigh],
+      ].map(([label, v]) => `
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:4px">${label}</div>
+          <div style="font-size:14px;font-weight:700;color:var(--accent)">${fmtCr(v)}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="iv-bar-wrap">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);font-weight:600;margin-bottom:4px">
+        <span>IV Low: ${fmtCr(low)}</span>
+        <span>IV High: ${fmtCr(high)}</span>
+      </div>
+      <div class="iv-bar-track">
+        <div class="iv-bar-fill" style="left:${lowPct}%;width:${highPct - lowPct}%"></div>
+        <div class="iv-marker" style="left:${mktPct}%;background:#ef4444"></div>
+        <div class="iv-marker-label" style="left:${mktPct}%;color:#ef4444">
+          ₹${Math.round(mktCap).toLocaleString('en-IN')} Cr<br><span style="font-size:10px">Current Mkt Cap</span>
+        </div>
+      </div>
+      <div class="iv-labels">
+        <span>₹0</span>
+        <span>₹${Math.round(total/2).toLocaleString('en-IN')} Cr</span>
+        <span>₹${Math.round(total).toLocaleString('en-IN')} Cr</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+// =============================================
+// 7. DATA WARNING BANNER
+// =============================================
+function dataWarningBanner() {
+  const cnt = state.rawData?.years?.length || 0;
+  if (cnt >= 8) return '';
+
+  if (cnt >= 5) {
+    return `
+    <div class="data-warning warn-yellow">
+      <span style="font-size:1.3rem;flex-shrink:0">⚠️</span>
+      <div>
+        <strong>Only ${cnt} years of data detected — analysis is less reliable</strong>
+        The tool works best with 8–10 years of financial history. With ${cnt} years:
+        <ul>
+          <li>10-year CAGR metrics will show "—" (not enough history)</li>
+          <li>FCF base used in DCF / Dhandho is built on fewer data points</li>
+          <li>Buffett checklist criteria tied to long-term consistency may auto-fail</li>
+          <li>Treat valuations as a rough directional estimate, not a precise number</li>
+        </ul>
+      </div>
+    </div>`;
+  }
+
+  return `
+  <div class="data-warning warn-red">
+    <span style="font-size:1.3rem;flex-shrink:0">🚫</span>
+    <div>
+      <strong>Only ${cnt} years of data — valuation results are unreliable</strong>
+      Fewer than 5 years of financial data is insufficient for any of the 4 valuation
+      methods to produce meaningful results. A single good or bad year can skew all outputs.
+      <ul>
+        <li>Most CAGR and average metrics will not compute</li>
+        <li>Consider this a rough placeholder only — do not make investment decisions based on this analysis</li>
+        <li>Wait until the company has at least 5–8 years of listed history before running a full valuation</li>
+      </ul>
+    </div>
+  </div>`;
+}
+
+// =============================================
+// 8. SCREEN RENDERERS
+// =============================================
+function renderProgress() {
+  const steps = [
+    { label: 'Upload File', screen: 'upload' },
+    { label: 'Enter Capex', screen: 'capex' },
+    { label: 'Assumptions', screen: 'assumptions' },
+    { label: 'Analysis', screen: 'dashboard' },
+  ];
+  const current = ['upload','capex','assumptions','dashboard'].indexOf(state.screen);
+  return `<div class="progress-bar">` +
+    steps.map((s, i) => {
+      const cls = i < current ? 'done' : i === current ? 'active' : '';
+      const num = i < current ? '✓' : i + 1;
+      return `
+        ${i > 0 ? '<div class="step-sep"></div>' : ''}
+        <div class="progress-step ${cls}">
+          <div class="step-num">${num}</div>
+          <span>${s.label}</span>
+        </div>`;
+    }).join('') +
+  `</div>`;
+}
+
+// --- SCREEN 1: UPLOAD ---
+function renderUpload() {
+  return `
+  <div class="page">
+    <div class="upload-hero">
+      <h1>Stock <span>Fair Value</span> Analyzer</h1>
+      <p>Upload your Screener.in Excel export to get a comprehensive valuation analysis using 4 proven methods.</p>
+    </div>
+    <div class="upload-zone" id="upload-zone">
+      <input type="file" id="file-input" accept=".xlsx,.xls" />
+      <div class="upload-icon">📂</div>
+      <h3>Drop your Screener.in Excel file here</h3>
+      <p style="margin-top:4px">or click to browse &nbsp;·&nbsp; supports .xlsx files</p>
+      <p style="margin-top:12px;font-size:11px;color:var(--text3)">Download your file from screener.in → Company page → Export to Excel</p>
+    </div>
+    <div class="info-cards">
+      <div class="info-card">
+        <div class="ic-icon">📊</div>
+        <h4>4 Valuation Methods</h4>
+        <p>DCF, Dhandho, Ben Graham, and Expected Returns — consolidated into a single intrinsic value range.</p>
+      </div>
+      <div class="info-card">
+        <div class="ic-icon">🔍</div>
+        <h4>Buffett Checklist</h4>
+        <p>10-point auto-scored checklist based on Warren Buffett's criteria from Buffettology.</p>
+      </div>
+      <div class="info-card">
+        <div class="ic-icon">⚠️</div>
+        <h4>Requirements</h4>
+        <p>Company needs at least 8 years of data. Does not work for banks or financial services firms.</p>
+      </div>
+    </div>
+    <div class="disclaimer" style="max-width:700px;margin:24px auto 0">
+      ⚠️ <strong>Disclaimer:</strong> This tool is for educational and research purposes only. It is not financial advice. All valuations are based on historical data and user-provided assumptions. Please consult a SEBI-registered investment advisor before making investment decisions.
+    </div>
+  </div>`;
+}
+
+// --- SCREEN 2: CAPEX INPUT ---
+function renderCapexInput() {
+  const { rawData } = state;
+  const { years, pl, cf } = rawData;
+  return `
+  <div class="page">
+    ${dataWarningBanner()}
+    <div class="section-header">
+      <h2>Enter Capex (Capital Expenditure)</h2>
+      <p>Capex is not available on Screener.in. Please enter it from the company's annual reports or NSE/BSE filings. It appears in the Cash Flow Statement under "Purchase of Fixed Assets".</p>
+    </div>
+    <div class="capex-table-wrap">
+      <table class="capex-table">
+        <thead>
+          <tr>
+            <th>Year</th>
+            <th>Revenue (Cr)</th>
+            <th>Operating CF (Cr)</th>
+            <th>Capex (Cr) <span style="color:var(--accent)">*enter</span></th>
+            <th>FCF (Cr)</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${years.map((yr, i) => {
+            const ocf = cf.operating[i];
+            const cap = state.capex[i] || 0;
+            const fcf = ocf !== null ? ocf - cap : null;
+            return `
+            <tr>
+              <td>FY${yr}</td>
+              <td>${pl.sales[i] ? Math.round(pl.sales[i]).toLocaleString('en-IN') : '—'}</td>
+              <td>${ocf !== null ? Math.round(ocf).toLocaleString('en-IN') : '—'}</td>
+              <td><input type="number" class="capex-input" data-idx="${i}" value="${state.capex[i] || ''}" placeholder="0" min="0" step="1" /></td>
+              <td class="fcf-val ${fcf === null ? '' : fcf >= 0 ? 'fcf-pos' : 'fcf-neg'}" id="fcf-${i}">
+                ${fcf !== null ? Math.round(fcf).toLocaleString('en-IN') : '—'}
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:12px;font-size:12px;color:var(--text3)">* Enter capex as a positive number (e.g. 500 for ₹500 Cr). Leave as 0 if unavailable — FCF will equal Operating Cash Flow.</p>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goScreen('upload')">← Back</button>
+      <button class="btn btn-primary" onclick="proceedFromCapex()">Continue to Assumptions →</button>
+    </div>
+  </div>`;
+}
+
+// --- SCREEN 3: ASSUMPTIONS ---
+function renderAssumptions() {
+  const a = state.assumptions;
+  const { cagrs, avgs } = state.analysis;
+  const suggestedNPCAGR = cagrs.npCAGR5 ? Math.round(cagrs.npCAGR5) : 12;
+  const suggestedPE = state.analysis.avgPE5 ? Math.round(state.analysis.avgPE5) : 20;
+
+  return `
+  <div class="page">
+    ${dataWarningBanner()}
+    <div class="section-header">
+      <h2>Valuation Assumptions</h2>
+      <p>These assumptions drive the 4 valuation models. Pre-filled with sensible defaults from historical data — adjust as needed.</p>
+    </div>
+    <div class="assumptions-grid">
+      <div class="assumptions-group">
+        <h3>📉 Conservative FCF Growth (Dhandho Low / DCF)</h3>
+        <div class="input-row"><label>Year 1–3 FCF Growth</label>
+          <div class="input-wrap"><input type="number" id="fcfLowY1" value="${a.fcfLowY1}" min="-20" max="50"><span class="unit">%</span></div>
+          <div class="input-hint">Historical 5yr FCF CAGR: ${cagrs.fcfCAGR5 !== null ? cagrs.fcfCAGR5.toFixed(1)+'%' : 'N/A'}</div>
+        </div>
+        <div class="input-row"><label>Year 4–6 FCF Growth</label>
+          <div class="input-wrap"><input type="number" id="fcfLowY2" value="${a.fcfLowY2}" min="-20" max="50"><span class="unit">%</span></div>
+        </div>
+        <div class="input-row"><label>Year 7–10 FCF Growth</label>
+          <div class="input-wrap"><input type="number" id="fcfLowY3" value="${a.fcfLowY3}" min="-20" max="50"><span class="unit">%</span></div>
+        </div>
+      </div>
+      <div class="assumptions-group">
+        <h3>📈 Optimistic FCF Growth (Dhandho High)</h3>
+        <div class="input-row"><label>Year 1–3 FCF Growth</label>
+          <div class="input-wrap"><input type="number" id="fcfHighY1" value="${a.fcfHighY1}" min="-20" max="80"><span class="unit">%</span></div>
+          <div class="input-hint">Historical 5yr Sales CAGR: ${cagrs.salesCAGR5 !== null ? cagrs.salesCAGR5.toFixed(1)+'%' : 'N/A'}</div>
+        </div>
+        <div class="input-row"><label>Year 4–6 FCF Growth</label>
+          <div class="input-wrap"><input type="number" id="fcfHighY2" value="${a.fcfHighY2}" min="-20" max="80"><span class="unit">%</span></div>
+        </div>
+        <div class="input-row"><label>Year 7–10 FCF Growth</label>
+          <div class="input-wrap"><input type="number" id="fcfHighY3" value="${a.fcfHighY3}" min="-20" max="80"><span class="unit">%</span></div>
+        </div>
+      </div>
+      <div class="assumptions-group">
+        <h3>⚙️ Discount & Terminal Rate</h3>
+        <div class="input-row"><label>Discount Rate (Cost of Capital)</label>
+          <div class="input-wrap"><input type="number" id="discountRate" value="${a.discountRate}" min="6" max="25"><span class="unit">%</span></div>
+          <div class="input-hint">Typically 10–15% for Indian equities</div>
+        </div>
+        <div class="input-row"><label>Terminal Growth Rate (perpetuity)</label>
+          <div class="input-wrap"><input type="number" id="terminalGrowth" value="${a.terminalGrowth}" min="0" max="10"><span class="unit">%</span></div>
+          <div class="input-hint">Must be less than Discount Rate (typically 2–4%)</div>
+        </div>
+      </div>
+      <div class="assumptions-group">
+        <h3>🎯 Expected Returns Method</h3>
+        <div class="input-row"><label>Estimated Net Profit CAGR (next 10 yrs)</label>
+          <div class="input-wrap"><input type="number" id="npCAGR" value="${suggestedNPCAGR}" min="-10" max="50"><span class="unit">%</span></div>
+          <div class="input-hint">Historical 5yr Net Profit CAGR: ${cagrs.npCAGR5 !== null ? cagrs.npCAGR5.toFixed(1)+'%' : 'N/A'}</div>
+        </div>
+        <div class="input-row"><label>Exit P/E Ratio (year 10)</label>
+          <div class="input-wrap"><input type="number" id="exitPE" value="${suggestedPE}" min="5" max="80"><span class="unit">x</span></div>
+          <div class="input-hint">5-yr avg historical P/E: ${state.analysis.avgPE5 !== null ? state.analysis.avgPE5.toFixed(1)+'x' : 'N/A'}</div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goScreen('capex')">← Back</button>
+      <button class="btn btn-primary" onclick="proceedFromAssumptions()">Run Analysis →</button>
+    </div>
+  </div>`;
+}
+
+// --- SCREEN 4: DASHBOARD ---
+function renderDashboard() {
+  const { rawData, analysis } = state;
+  const { meta, years, pl, bs, cf } = rawData;
+  const { per, cagrs, avgs, vals, ivRange, upside, verdict, verdictColor, verdictBg, checklist, netCash } = analysis;
+  const n = years.length;
+  const mktCap = meta.mktCap;
+
+  const checklistScore = checklist.filter(c => c.pass).length;
+  const checklistColor = checklistScore >= 8 ? '#10b981' : checklistScore >= 6 ? '#f59e0b' : '#ef4444';
+
+  // Helper for coloring
+  const co = (v, good='c-green', bad='c-red') => v > 0 ? good : bad;
+  const cell = (v, fmt='pct', threshold=0) => {
+    if (v === null || v === undefined) return '<td>—</td>';
+    const fmtted = fmt === 'pct' ? pct(v) : fmt === 'ratio' ? ratioFmt(v) : fmt === 'cr' ? fmtCr(v) : String(v?.toFixed(1));
+    const cls = v > threshold ? 'c-green' : v < threshold ? 'c-red' : '';
+    return `<td class="${cls}">${fmtted}</td>`;
+  };
+
+  const yrHeaders = years.map(y => `<th>FY${y}</th>`).join('');
+
+  return `
+  <div class="page">
+
+    <!-- Company Header -->
+    <div class="company-header">
+      <div>
+        <div class="company-name">${meta.company}</div>
+        <div class="company-meta">
+          <div class="company-meta-item"><div class="label">Market Cap</div><div class="value">${fmtCr(mktCap)}</div></div>
+          <div class="company-meta-item"><div class="label">Current Price</div><div class="value">₹${meta.price?.toFixed(2) || '—'}</div></div>
+          <div class="company-meta-item"><div class="label">Shares</div><div class="value">${meta.shares?.toFixed(2)} Cr</div></div>
+          <div class="company-meta-item"><div class="label">Face Value</div><div class="value">₹${meta.faceValue}</div></div>
+          <div class="company-meta-item"><div class="label">Latest P/E</div><div class="value">${analysis.latestCurrentPE ? analysis.latestCurrentPE.toFixed(1)+'x' : '—'}</div></div>
+        </div>
+      </div>
+      <div class="verdict-badge" style="background:${verdictBg};color:${verdictColor}">${verdict}</div>
+    </div>
+
+    ${dataWarningBanner()}
+
+    <!-- Key Metrics Strip -->
+    <div class="metrics-strip">
+      <div class="metric-card">
+        <div class="m-label">10-yr Sales CAGR</div>
+        <div class="m-val ${co(cagrs.salesCAGR10 || 0)}">${pct(cagrs.salesCAGR10)}</div>
+        <div class="m-sub">5yr: ${pct(cagrs.salesCAGR5)}</div>
+      </div>
+      <div class="metric-card">
+        <div class="m-label">10-yr Profit CAGR</div>
+        <div class="m-val ${co(cagrs.npCAGR10 || 0)}">${pct(cagrs.npCAGR10)}</div>
+        <div class="m-sub">5yr: ${pct(cagrs.npCAGR5)}</div>
+      </div>
+      <div class="metric-card">
+        <div class="m-label">Avg ROE (5yr)</div>
+        <div class="m-val ${avgs.avgROE5 > 15 ? 'c-green' : 'c-yellow'}">${pct(avgs.avgROE5)}</div>
+        <div class="m-sub">ROCE: ${pct(avg(per.roce, 5))}</div>
+      </div>
+      <div class="metric-card">
+        <div class="m-label">Avg D/E (5yr)</div>
+        <div class="m-val ${avgs.avgDE5 < 0.5 ? 'c-green' : 'c-red'}">${avgs.avgDE5?.toFixed(2)}x</div>
+        <div class="m-sub">Net Cash: ${fmtCr(netCash)}</div>
+      </div>
+      <div class="metric-card">
+        <div class="m-label">Avg Net Margin (5yr)</div>
+        <div class="m-val c-accent">${pct(avgs.avgNM5)}</div>
+        <div class="m-sub">Op Margin: ${pct(avgs.avgOM5)}</div>
+      </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>Revenue & Net Profit Trend</h3>
+        <canvas id="chart-revenue"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Margin Trends (%)</h3>
+        <canvas id="chart-margins"></canvas>
+      </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>Free Cash Flow vs Operating Cash Flow (Cr)</h3>
+        <canvas id="chart-fcf"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Return on Equity & Capital Employed (%)</h3>
+        <canvas id="chart-roe"></canvas>
+      </div>
+    </div>
+
+    <!-- Valuation Section -->
+    <div class="section-divider"><h2>Intrinsic Value Estimates</h2></div>
+
+    <div class="valuation-grid">
+      ${[
+        { method: 'DCF', title: 'Discounted Cash Flow', range: fmtCr(vals.dcfValue), note: 'Base FCF × growth + terminal value + net cash' },
+        { method: 'Dhandho', title: 'Dhandho Method (Pabrai)', range: `${fmtCr(vals.dhandhoLow)} – ${fmtCr(vals.dhandhoHigh)}`, note: 'FCF projected over 10 yrs, discounted at ' + state.assumptions.discountRate + '%' },
+        { method: 'Ben Graham', title: 'Graham Formula', range: `${fmtCr(vals.grahamLow)} – ${fmtCr(vals.grahamHigh)}`, note: 'Avg 5yr NP × (8.5 + 2G)' },
+        { method: 'Expected Return', title: 'Expected Returns', range: fmtCr(vals.expectedReturn), note: 'Projected NP × exit P/E, discounted back' },
+      ].map(v => {
+        const midpoint = (v.method === 'Dhandho') ? (vals.dhandhoLow + vals.dhandhoHigh)/2 : (v.method === 'Ben Graham') ? (vals.grahamLow + vals.grahamHigh)/2 : v.method === 'DCF' ? vals.dcfValue : vals.expectedReturn;
+        const tag = mktCap < midpoint * 0.9 ? '<span class="tag-under">Undervalued</span>' : mktCap > midpoint * 1.1 ? '<span class="tag-over">Overvalued</span>' : '<span class="tag-fair">Fair Value</span>';
+        const diff = midpoint ? ((midpoint - mktCap) / mktCap * 100) : null;
+        return `
+          <div class="val-card">
+            <div class="vc-method">${v.method}</div>
+            <div class="vc-title">${v.title}</div>
+            <div class="vc-range">${v.range}</div>
+            <div class="vc-note">${v.note}</div>
+            <div class="vc-vs">${tag} ${diff !== null ? `<span style="font-size:11px;color:var(--text2);margin-left:4px">${diff>0?'+':''}${diff.toFixed(0)}% vs current</span>` : ''}</div>
+          </div>`;
+      }).join('')}
+    </div>
+
+    ${renderIVBar(analysis, mktCap)}
+
+    <!-- Verdict Banner -->
+    <div class="verdict-banner" style="background:${verdictBg}20;border:1px solid ${verdictBg}40">
+      <div style="color:${verdictBg}">
+        <div class="vb-label">Our Analysis Says</div>
+        <div class="vb-verdict" style="color:${verdictBg}">${verdict}</div>
+        <div class="vb-detail" style="color:var(--text2)">
+          Intrinsic Value Range: ${fmtCr(ivRange.low)} – ${fmtCr(ivRange.high)} &nbsp;|&nbsp;
+          Current Market Cap: ${fmtCr(mktCap)} &nbsp;|&nbsp;
+          ${upside !== null ? `Upside to IV Mid: ${upside > 0 ? '+' : ''}${upside.toFixed(0)}%` : ''}
+        </div>
+      </div>
+      <div class="vb-numbers">
+        <div class="vb-n-label">IV Midpoint</div>
+        <div class="vb-n-val" style="color:var(--accent)">${fmtCr(ivRange.mid)}</div>
+      </div>
+    </div>
+
+    <!-- CAGR Summary -->
+    <div class="section-divider"><h2>Growth Analysis</h2></div>
+    <div class="cagr-grid">
+      <div class="cagr-card">
+        <h3>Revenue & Profit Growth (CAGR)</h3>
+        <div class="cagr-rows">
+          ${[
+            ['Sales Growth',      cagrs.salesCAGR3, cagrs.salesCAGR5, cagrs.salesCAGR10],
+            ['Net Profit Growth', cagrs.npCAGR3,    cagrs.npCAGR5,    cagrs.npCAGR10],
+            ['PBT Growth',        null,              cagrs.pbtCAGR5,   cagrs.pbtCAGR10],
+            ['Dividend Growth',   null,              cagrs.dividendCAGR5, null],
+          ].map(([label, c3, c5, c10]) => `
+            <div class="cagr-row">
+              <span class="cr-label">${label}</span>
+              <div class="cr-vals">
+                ${[['3yr', c3], ['5yr', c5], ['10yr', c10]].map(([p, v]) => `
+                  <div class="cr-val">
+                    <div class="period">${p}</div>
+                    <div class="val ${v !== null ? (v >= 10 ? 'c-green' : v >= 0 ? 'c-yellow' : 'c-red') : ''}">${v !== null ? pct(v) : '—'}</div>
+                  </div>`).join('')}
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="cagr-card">
+        <h3>Returns & Efficiency</h3>
+        <div class="cagr-rows">
+          ${[
+            ['Operating Margin',  avg(per.opMargin, 3),  avg(per.opMargin, 5),  avg(per.opMargin, 10)],
+            ['Net Margin',        avg(per.netMargin, 3), avg(per.netMargin, 5), avg(per.netMargin, 10)],
+            ['Return on Equity',  avg(per.roe, 3),       avg(per.roe, 5),       avg(per.roe, 10)],
+            ['Return on Capital', avg(per.roce, 3),      avg(per.roce, 5),      avg(per.roce, 10)],
+          ].map(([label, a3, a5, a10]) => `
+            <div class="cagr-row">
+              <span class="cr-label">${label}</span>
+              <div class="cr-vals">
+                ${[['3yr', a3], ['5yr', a5], ['10yr', a10]].map(([p, v]) => `
+                  <div class="cr-val">
+                    <div class="period">${p} avg</div>
+                    <div class="val ${v !== null ? (v >= 15 ? 'c-green' : v >= 8 ? 'c-yellow' : 'c-red') : ''}">${v !== null ? pct(v) : '—'}</div>
+                  </div>`).join('')}
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Ratios Table -->
+    <div class="section-divider"><h2>Key Ratios — Year by Year</h2></div>
+    <div class="ratios-section">
+      <div class="ratios-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Metric</th>${yrHeaders}</tr></thead>
+          <tbody>
+            <tr><td>Sales (₹Cr)</td>${years.map((_,i) => `<td>${pl.sales[i] ? Math.round(pl.sales[i]).toLocaleString('en-IN') : '—'}</td>`).join('')}</tr>
+            <tr><td>Operating Profit (₹Cr)</td>${years.map((_,i) => `<td class="${per.opProfit[i]>=0?'c-green':'c-red'}">${per.opProfit[i]!==null?Math.round(per.opProfit[i]).toLocaleString('en-IN'):'—'}</td>`).join('')}</tr>
+            <tr><td>Net Profit (₹Cr)</td>${years.map((_,i) => `<td class="${(pl.netProfit[i]||0)>=0?'c-green':'c-red'}">${pl.netProfit[i]!==null?Math.round(pl.netProfit[i]).toLocaleString('en-IN'):'—'}</td>`).join('')}</tr>
+            <tr><td>Operating Margin</td>${years.map((_,i) => cell(per.opMargin[i], 'pct', 10)).join('')}</tr>
+            <tr><td>PBT Margin</td>${years.map((_,i) => cell(per.pbtMargin[i], 'pct', 8)).join('')}</tr>
+            <tr><td>Net Margin</td>${years.map((_,i) => cell(per.netMargin[i], 'pct', 5)).join('')}</tr>
+            <tr><td>ROE</td>${years.map((_,i) => cell(per.roe[i], 'pct', 15)).join('')}</tr>
+            <tr><td>ROCE</td>${years.map((_,i) => cell(per.roce[i], 'pct', 15)).join('')}</tr>
+            <tr><td>Debt / Equity</td>${years.map((_,i) => {
+              const v = per.de[i]; if (v===null) return '<td>—</td>';
+              return `<td class="${v<0.5?'c-green':v<1?'c-yellow':'c-red'}">${v.toFixed(2)}x</td>`;
+            }).join('')}</tr>
+            <tr><td>EPS (₹)</td>${years.map((_,i) => `<td>${per.eps[i]!==null?per.eps[i].toFixed(1):'—'}</td>`).join('')}</tr>
+            <tr><td>P/E Ratio</td>${years.map((_,i) => `<td>${per.pe[i]!==null?per.pe[i].toFixed(1)+'x':'—'}</td>`).join('')}</tr>
+            <tr><td>Operating CF (₹Cr)</td>${years.map((_,i) => `<td class="${(cf.operating[i]||0)>=0?'c-green':'c-red'}">${cf.operating[i]!==null?Math.round(cf.operating[i]).toLocaleString('en-IN'):'—'}</td>`).join('')}</tr>
+            <tr><td>Free Cash Flow (₹Cr)</td>${years.map((_,i) => `<td class="${(per.fcf[i]||0)>=0?'c-green':'c-red'}">${per.fcf[i]!==null?Math.round(per.fcf[i]).toLocaleString('en-IN'):'—'}</td>`).join('')}</tr>
+            <tr><td>Debtor Days</td>${years.map((_,i) => {
+              const v = per.debtorDays[i]; if (!v) return '<td>—</td>';
+              return `<td class="${v<30?'c-green':v<60?'c-yellow':'c-red'}">${Math.round(v)}</td>`;
+            }).join('')}</tr>
+            <tr><td>Inventory Turnover</td>${years.map((_,i) => `<td>${per.invTurnover[i]!==null?per.invTurnover[i].toFixed(1)+'x':'—'}</td>`).join('')}</tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Buffett Checklist -->
+    <div class="section-divider"><h2>Buffett Quality Checklist</h2></div>
+    <div class="checklist-section">
+      <div class="checklist-score">
+        <span class="cs-label">Quality Score</span>
+        <span class="cs-score" style="color:${checklistColor}">${checklistScore} / 10</span>
+      </div>
+      <div class="checklist-grid">
+        ${checklist.map(c => `
+          <div class="checklist-item">
+            <div class="check-icon">${c.pass ? '✅' : '❌'}</div>
+            <div class="check-text">
+              <h4>${c.label}</h4>
+              <p>${c.desc}</p>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+      ⚠️ <strong>Important Disclaimer:</strong> This analysis is generated using historical financial data and user-provided assumptions. It is intended for educational and research purposes only. All intrinsic value estimates are highly sensitive to the growth assumptions entered. This is <strong>not financial advice</strong>. Past performance does not guarantee future results. Consult a SEBI-registered investment advisor before making any investment decisions.
+    </div>
+
+    <div style="text-align:center;margin-top:32px">
+      <button class="btn btn-ghost" onclick="goScreen('assumptions')">← Adjust Assumptions</button>
+      <button class="btn btn-ghost" onclick="resetApp()" style="margin-left:12px">↩ Analyze Another Stock</button>
+    </div>
+  </div>`;
+}
+
+// =============================================
+// 8. ROUTER & EVENTS
+// =============================================
+function goScreen(screen) {
+  state.screen = screen;
+  render();
+}
+
+function render() {
+  document.getElementById('progress-bar').innerHTML = renderProgress();
+  const root = document.getElementById('root');
+  switch (state.screen) {
+    case 'upload':      root.innerHTML = renderUpload();      setupUpload(); break;
+    case 'capex':       root.innerHTML = renderCapexInput();  setupCapex();  break;
+    case 'assumptions': root.innerHTML = renderAssumptions(); break;
+    case 'dashboard':
+      // Run final analysis with updated assumptions
+      state.analysis = computeAnalysis(state.rawData, state.capex, state.assumptions);
+      root.innerHTML = renderDashboard();
+      setTimeout(() => renderCharts(state.rawData, state.analysis), 50);
+      break;
+  }
+}
+
+function resetApp() {
+  state.screen = 'upload';
+  state.rawData = null;
+  state.capex = [];
+  state.analysis = null;
+  Object.keys(chartInstances).forEach(k => { chartInstances[k]?.destroy(); delete chartInstances[k]; });
+  render();
+}
+
+// --- Upload Setup ---
+function setupUpload() {
+  const zone = document.getElementById('upload-zone');
+  const input = document.getElementById('file-input');
+
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  });
+  input.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) handleFile(file);
+  });
+}
+
+function handleFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const buffer = new Uint8Array(e.target.result);
+      const data = parseDataSheet(buffer);
+      if (!data.years.length) {
+        alert('Could not parse financial data. Make sure you uploaded the correct Screener.in Excel file.');
+        return;
+      }
+      state.rawData = data;
+      // Initialize capex array
+      state.capex = Array(data.years.length).fill(0);
+      // Pre-compute analysis with zero capex for defaults on assumptions screen
+      state.analysis = computeAnalysis(data, state.capex, state.assumptions);
+      goScreen('capex');
+    } catch(err) {
+      alert('Error reading file: ' + err.message + '\n\nMake sure you uploaded the correct Screener.in Excel file.');
+      console.error(err);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// --- Capex Setup ---
+function setupCapex() {
+  document.querySelectorAll('.capex-input').forEach(input => {
+    input.addEventListener('input', e => {
+      const idx = parseInt(e.target.dataset.idx);
+      const capexVal = parseFloat(e.target.value) || 0;
+      state.capex[idx] = capexVal;
+      // Update FCF cell
+      const ocf = state.rawData.cf.operating[idx];
+      const fcf = ocf !== null ? ocf - capexVal : null;
+      const cell = document.getElementById(`fcf-${idx}`);
+      if (cell) {
+        cell.textContent = fcf !== null ? Math.round(fcf).toLocaleString('en-IN') : '—';
+        cell.className = 'fcf-val ' + (fcf === null ? '' : fcf >= 0 ? 'fcf-pos' : 'fcf-neg');
+      }
+    });
+  });
+}
+
+function proceedFromCapex() {
+  // Re-compute with current capex before going to assumptions
+  state.analysis = computeAnalysis(state.rawData, state.capex, state.assumptions);
+  goScreen('assumptions');
+}
+
+function proceedFromAssumptions() {
+  // Read assumption values
+  const ids = ['fcfLowY1','fcfLowY2','fcfLowY3','fcfHighY1','fcfHighY2','fcfHighY3','discountRate','terminalGrowth','npCAGR','exitPE'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) state.assumptions[id] = parseFloat(el.value) || state.assumptions[id];
+  });
+  goScreen('dashboard');
+}
+
+// =============================================
+// 9. INIT
+// =============================================
+render();
+</script>
+</body>
+</html>
