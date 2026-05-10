@@ -1,10 +1,1147 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Fundvisory</title>
-  </head>
-  <body>
-    <h1>Fundvisory</h1>
-    <p>Investment Advisory Website – Coming Soon</p>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fundvisory — Smart Tools for Smart Investors</title>
+  <meta name="description" content="Professional stock market analysis tools for Indian investors. Value investing made simple with data-driven insights." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #060c18;
+      --bg2:       #0d1526;
+      --bg3:       #111e35;
+      --border:    rgba(255,255,255,0.07);
+      --green:     #10b981;
+      --green-dim: #059669;
+      --gold:      #f59e0b;
+      --red:       #ef4444;
+      --text:      #e2e8f0;
+      --muted:     #64748b;
+      --subtle:    #1e2d45;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── TICKER BAR ── */
+    .ticker-bar {
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+      height: 36px;
+      display: flex;
+      align-items: center;
+    }
+    .ticker-track {
+      display: flex;
+      gap: 48px;
+      animation: ticker 35s linear infinite;
+      white-space: nowrap;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+    .ticker-track:hover { animation-play-state: paused; }
+    .tick-item { display: flex; align-items: center; gap: 8px; }
+    .tick-name { color: var(--muted); }
+    .tick-price { color: var(--text); }
+    .tick-change.up   { color: var(--green); }
+    .tick-change.down { color: var(--red);   }
+    @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(6,12,24,0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+    }
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--green), #34d399);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 8px;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 14px;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); background: var(--subtle); }
+    .nav-cta {
+      background: var(--green);
+      color: #000 !important;
+      font-weight: 600 !important;
+      padding: 8px 20px !important;
+      border-radius: 8px !important;
+    }
+    .nav-cta:hover { background: #34d399 !important; color: #000 !important; }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      min-height: 90vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+      padding: 80px 24px;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(16,185,129,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(245,158,11,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 50% at 20% 60%, rgba(59,130,246,0.06) 0%, transparent 60%);
+    }
+    /* animated grid */
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 80%);
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 860px; }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(16,185,129,0.12);
+      border: 1px solid rgba(16,185,129,0.3);
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 16px;
+      border-radius: 100px;
+      margin-bottom: 28px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .hero-badge-dot {
+      width: 6px; height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.5; transform: scale(1.4); }
+    }
+    .hero h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(42px, 7vw, 76px);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      margin-bottom: 24px;
+      color: #fff;
+    }
+    .hero h1 .accent { color: var(--green); }
+    .hero h1 .gold   { color: var(--gold); }
+    .hero-sub {
+      font-size: clamp(16px, 2vw, 20px);
+      color: var(--muted);
+      max-width: 580px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+      font-weight: 400;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 64px;
+    }
+    .btn-primary {
+      background: var(--green);
+      color: #000;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 14px 32px;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 0 32px rgba(16,185,129,0.35);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 48px rgba(16,185,129,0.5); background: #34d399; }
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 15px;
+      padding: 14px 32px;
+      border-radius: 12px;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-secondary:hover { border-color: rgba(255,255,255,0.2); background: var(--subtle); }
+
+    /* hero chart preview */
+    .hero-chart-preview {
+      position: relative;
+      display: inline-block;
+      max-width: 700px;
+      width: 100%;
+    }
+    .chart-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      text-align: left;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+    .chart-title { font-size: 13px; color: var(--muted); font-weight: 500; }
+    .chart-stock { font-size: 20px; font-weight: 700; color: #fff; margin-top: 2px; }
+    .chart-price { text-align: right; }
+    .chart-val { font-size: 22px; font-weight: 700; color: #fff; }
+    .chart-chg { font-size: 13px; color: var(--green); font-weight: 600; }
+    .mini-chart { height: 80px; position: relative; }
+    .mini-chart svg { width: 100%; height: 100%; }
+    .iv-bar-wrap { margin-top: 20px; }
+    .iv-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; font-weight: 500; }
+    .iv-bar { height: 8px; background: var(--subtle); border-radius: 4px; position: relative; overflow: visible; }
+    .iv-fill { height: 100%; background: linear-gradient(90deg, var(--green), #34d399); border-radius: 4px; width: 55%; }
+    .iv-marker {
+      position: absolute;
+      top: -4px;
+      left: 68%;
+      width: 16px; height: 16px;
+      background: var(--gold);
+      border-radius: 50%;
+      border: 2px solid var(--bg2);
+      transform: translateX(-50%);
+    }
+    .iv-range { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 8px; }
+    .badge-green { display: inline-block; background: rgba(16,185,129,0.15); color: var(--green); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; }
+    .verdict-row { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
+    .verdict-text { font-size: 15px; font-weight: 700; color: var(--green); }
+
+    /* ── STATS ── */
+    .stats-section {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+      padding: 48px 24px;
+    }
+    .stats-grid {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+      text-align: center;
+    }
+    .stat-val {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 40px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+    .stat-val span { color: var(--green); }
+    .stat-label { font-size: 14px; color: var(--muted); margin-top: 8px; font-weight: 500; }
+
+    /* ── SECTIONS COMMON ── */
+    section { padding: 96px 24px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .section-tag {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+    .section-sub {
+      font-size: 17px;
+      color: var(--muted);
+      max-width: 560px;
+      line-height: 1.7;
+    }
+
+    /* ── TOOLS ── */
+    .tools-section { background: var(--bg); }
+    .tools-header { margin-bottom: 56px; }
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+    }
+    .tool-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+    }
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--green), #34d399);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .tool-card:hover { border-color: rgba(16,185,129,0.3); transform: translateY(-4px); box-shadow: 0 24px 48px rgba(0,0,0,0.4); }
+    .tool-card:hover::before { opacity: 1; }
+    .tool-card.locked {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .tool-card.locked:hover { transform: none; box-shadow: none; border-color: var(--border); }
+    .tool-card.locked::before { display: none; }
+    .tool-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .icon-green { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.2); }
+    .icon-blue  { background: rgba(59,130,246,0.12);  border: 1px solid rgba(59,130,246,0.2);  }
+    .icon-gold  { background: rgba(245,158,11,0.12);  border: 1px solid rgba(245,158,11,0.2);  }
+    .icon-purple{ background: rgba(168,85,247,0.12);  border: 1px solid rgba(168,85,247,0.2);  }
+    .icon-pink  { background: rgba(236,72,153,0.12);  border: 1px solid rgba(236,72,153,0.2);  }
+    .tool-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .tool-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .tool-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tool-tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .tag-green  { background: rgba(16,185,129,0.12); color: var(--green); }
+    .tag-blue   { background: rgba(59,130,246,0.12); color: #60a5fa; }
+    .tag-gold   { background: rgba(245,158,11,0.12); color: var(--gold); }
+    .tag-purple { background: rgba(168,85,247,0.12); color: #c084fc; }
+    .tool-live-badge {
+      position: absolute;
+      top: 24px; right: 24px;
+      background: var(--green);
+      color: #000;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 100px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .tool-soon-badge {
+      position: absolute;
+      top: 24px; right: 24px;
+      background: var(--subtle);
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 100px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .tool-arrow {
+      position: absolute;
+      bottom: 32px; right: 32px;
+      width: 32px; height: 32px;
+      background: var(--subtle);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+    .tool-card:not(.locked):hover .tool-arrow {
+      background: var(--green);
+      color: #000;
+    }
+
+    /* ── WHY SECTION ── */
+    .why-section { background: var(--bg2); }
+    .why-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .why-list { list-style: none; display: flex; flex-direction: column; gap: 32px; }
+    .why-item { display: flex; gap: 20px; }
+    .why-icon-wrap {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      background: rgba(16,185,129,0.1);
+      border: 1px solid rgba(16,185,129,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .why-item-title { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .why-item-desc  { font-size: 14px; color: var(--muted); line-height: 1.65; }
+    /* right panel: stacked cards */
+    .why-cards-wrap { position: relative; }
+    .metric-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+    }
+    .metric-label { font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 6px; }
+    .metric-value { font-size: 22px; font-weight: 700; color: #fff; }
+    .metric-row { display: flex; justify-content: space-between; align-items: center; }
+    .metric-bar-wrap { margin-top: 10px; }
+    .metric-bar { height: 5px; background: var(--subtle); border-radius: 3px; }
+    .metric-fill { height: 100%; border-radius: 3px; }
+    .fill-green  { background: var(--green); }
+    .fill-gold   { background: var(--gold);  }
+    .fill-blue   { background: #60a5fa;      }
+
+    /* ── HOW IT WORKS ── */
+    .how-section { background: var(--bg); }
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      margin-top: 56px;
+      position: relative;
+    }
+    .steps-grid::before {
+      content: '';
+      position: absolute;
+      top: 32px;
+      left: calc(16.6% + 16px);
+      right: calc(16.6% + 16px);
+      height: 1px;
+      background: linear-gradient(90deg, var(--green), rgba(16,185,129,0.1), var(--green));
+    }
+    .step-card { text-align: center; }
+    .step-num {
+      width: 64px; height: 64px;
+      background: rgba(16,185,129,0.1);
+      border: 1px solid rgba(16,185,129,0.3);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--green);
+      margin: 0 auto 24px;
+      position: relative;
+      z-index: 1;
+      background: var(--bg);
+    }
+    .step-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 12px; }
+    .step-desc  { font-size: 14px; color: var(--muted); line-height: 1.65; }
+
+    /* ── PHILOSOPHY ── */
+    .philosophy-section { background: var(--bg2); }
+    .philosophy-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 56px;
+    }
+    .phil-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+    }
+    .phil-quote {
+      font-size: 36px;
+      color: var(--green);
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 16px;
+    }
+    .phil-text { font-size: 15px; color: var(--muted); line-height: 1.7; }
+    .phil-author { margin-top: 16px; font-size: 13px; color: var(--text); font-weight: 600; }
+
+    /* ── CTA BANNER ── */
+    .cta-section {
+      background: var(--bg);
+      padding: 80px 24px;
+    }
+    .cta-card {
+      max-width: 900px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(16,185,129,0.04));
+      border: 1px solid rgba(16,185,129,0.25);
+      border-radius: 28px;
+      padding: 64px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-card::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(16,185,129,0.15) 0%, transparent 70%);
+    }
+    .cta-card h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+    .cta-card p {
+      font-size: 17px;
+      color: var(--muted);
+      margin-bottom: 36px;
+      line-height: 1.7;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      padding: 56px 24px 32px;
+    }
+    .footer-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+    .footer-brand p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-top: 12px;
+      max-width: 260px;
+    }
+    .footer-col h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col a {
+      font-size: 14px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-col a:hover { color: var(--text); }
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .disclaimer {
+      background: rgba(245,158,11,0.06);
+      border: 1px solid rgba(245,158,11,0.15);
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-top: 24px;
+    }
+
+    /* ── SCROLL ANIMATIONS ── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .stats-grid         { grid-template-columns: repeat(2, 1fr); }
+      .why-grid           { grid-template-columns: 1fr; }
+      .steps-grid         { grid-template-columns: 1fr; }
+      .steps-grid::before { display: none; }
+      .philosophy-grid    { grid-template-columns: 1fr; }
+      .footer-grid        { grid-template-columns: 1fr 1fr; }
+      .nav-links          { display: none; }
+      .cta-card           { padding: 40px 28px; }
+    }
+    @media (max-width: 600px) {
+      .stats-grid  { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-track">
+    <div class="tick-item"><span class="tick-name">RELIANCE</span><span class="tick-price">₹2,941</span><span class="tick-change up">+1.2%</span></div>
+    <div class="tick-item"><span class="tick-name">TCS</span><span class="tick-price">₹3,782</span><span class="tick-change up">+0.8%</span></div>
+    <div class="tick-item"><span class="tick-name">HDFC BANK</span><span class="tick-price">₹1,624</span><span class="tick-change down">−0.3%</span></div>
+    <div class="tick-item"><span class="tick-name">INFY</span><span class="tick-price">₹1,489</span><span class="tick-change up">+0.5%</span></div>
+    <div class="tick-item"><span class="tick-name">WIPRO</span><span class="tick-price">₹481</span><span class="tick-change up">+1.7%</span></div>
+    <div class="tick-item"><span class="tick-name">BAJFINANCE</span><span class="tick-price">₹7,210</span><span class="tick-change down">−0.6%</span></div>
+    <div class="tick-item"><span class="tick-name">HDFCBANK</span><span class="tick-price">₹1,624</span><span class="tick-change up">+0.4%</span></div>
+    <div class="tick-item"><span class="tick-name">ICICIBANK</span><span class="tick-price">₹1,198</span><span class="tick-change up">+1.1%</span></div>
+    <div class="tick-item"><span class="tick-name">MARUTI</span><span class="tick-price">₹12,340</span><span class="tick-change down">−0.2%</span></div>
+    <div class="tick-item"><span class="tick-name">NESTLEIND</span><span class="tick-price">₹2,180</span><span class="tick-change up">+0.9%</span></div>
+    <div class="tick-item"><span class="tick-name">TITAN</span><span class="tick-price">₹3,421</span><span class="tick-change up">+2.1%</span></div>
+    <div class="tick-item"><span class="tick-name">ASIANPAINT</span><span class="tick-price">₹2,875</span><span class="tick-change down">−0.4%</span></div>
+    <!-- duplicate for seamless loop -->
+    <div class="tick-item"><span class="tick-name">RELIANCE</span><span class="tick-price">₹2,941</span><span class="tick-change up">+1.2%</span></div>
+    <div class="tick-item"><span class="tick-name">TCS</span><span class="tick-price">₹3,782</span><span class="tick-change up">+0.8%</span></div>
+    <div class="tick-item"><span class="tick-name">HDFC BANK</span><span class="tick-price">₹1,624</span><span class="tick-change down">−0.3%</span></div>
+    <div class="tick-item"><span class="tick-name">INFY</span><span class="tick-price">₹1,489</span><span class="tick-change up">+0.5%</span></div>
+    <div class="tick-item"><span class="tick-name">WIPRO</span><span class="tick-price">₹481</span><span class="tick-change up">+1.7%</span></div>
+    <div class="tick-item"><span class="tick-name">BAJFINANCE</span><span class="tick-price">₹7,210</span><span class="tick-change down">−0.6%</span></div>
+    <div class="tick-item"><span class="tick-name">HDFCBANK</span><span class="tick-price">₹1,624</span><span class="tick-change up">+0.4%</span></div>
+    <div class="tick-item"><span class="tick-name">ICICIBANK</span><span class="tick-price">₹1,198</span><span class="tick-change up">+1.1%</span></div>
+    <div class="tick-item"><span class="tick-name">MARUTI</span><span class="tick-price">₹12,340</span><span class="tick-change down">−0.2%</span></div>
+    <div class="tick-item"><span class="tick-name">NESTLEIND</span><span class="tick-price">₹2,180</span><span class="tick-change up">+0.9%</span></div>
+    <div class="tick-item"><span class="tick-name">TITAN</span><span class="tick-price">₹3,421</span><span class="tick-change up">+2.1%</span></div>
+    <div class="tick-item"><span class="tick-name">ASIANPAINT</span><span class="tick-price">₹2,875</span><span class="tick-change down">−0.4%</span></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="logo">
+      <div class="logo-icon">📈</div>
+      Fundvisory
+    </a>
+    <ul class="nav-links">
+      <li><a href="#tools">Tools</a></li>
+      <li><a href="#why">Why Us</a></li>
+      <li><a href="#how">How it Works</a></li>
+      <li><a href="#philosophy">Philosophy</a></li>
+      <li><a href="stock-analyzer.html" class="nav-cta">Try Free →</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      Value Investing · Made Simple
+    </div>
+    <h1>
+      Know What a Stock is<br/>
+      <span class="accent">Really Worth</span>
+    </h1>
+    <p class="hero-sub">
+      Professional-grade analysis tools built for Indian investors.
+      Upload a Screener.in export and get a complete fair value assessment in seconds — powered by DCF, Graham, and Dhandho frameworks.
+    </p>
+    <div class="hero-actions">
+      <a href="stock-analyzer.html" class="btn-primary">
+        🔍 Analyse a Stock Free
+      </a>
+      <a href="#tools" class="btn-secondary">
+        Explore All Tools →
+      </a>
+    </div>
+
+    <!-- Preview Card -->
+    <div class="hero-chart-preview fade-up">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">NSE · Fair Value Analysis</div>
+            <div class="chart-stock">PIDILITIND</div>
+          </div>
+          <div class="chart-price">
+            <div class="chart-val">₹2,840</div>
+            <div class="chart-chg">↑ +2.3% today</div>
+          </div>
+        </div>
+        <div class="mini-chart">
+          <svg viewBox="0 0 600 80" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#10b981" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M0 65 L50 58 L100 62 L150 50 L200 45 L250 48 L300 35 L350 30 L400 25 L450 18 L500 12 L550 8 L600 5" stroke="#10b981" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <path d="M0 65 L50 58 L100 62 L150 50 L200 45 L250 48 L300 35 L350 30 L400 25 L450 18 L500 12 L550 8 L600 5 L600 80 L0 80Z" fill="url(#chartGrad)"/>
+          </svg>
+        </div>
+        <div class="iv-bar-wrap">
+          <div class="iv-label">Intrinsic Value Range</div>
+          <div class="iv-bar">
+            <div class="iv-fill"></div>
+            <div class="iv-marker" title="Current Price"></div>
+          </div>
+          <div class="iv-range">
+            <span>₹1,890 <em style="color:var(--muted);font-style:normal;font-size:10px">IV Low</em></span>
+            <span style="color:var(--gold);font-weight:600">▲ ₹2,840 Current</span>
+            <span>₹3,580 <em style="color:var(--muted);font-style:normal;font-size:10px">IV High</em></span>
+          </div>
+        </div>
+        <div class="verdict-row">
+          <span class="verdict-text">✅ Buy — Trading within Fair Value Range</span>
+          <span class="badge-green">Checklist 8/10</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-section">
+  <div class="stats-grid">
+    <div class="fade-up">
+      <div class="stat-val">4<span>+</span></div>
+      <div class="stat-label">Valuation Frameworks</div>
+    </div>
+    <div class="fade-up">
+      <div class="stat-val">10<span>+</span></div>
+      <div class="stat-label">Financial Metrics Analyzed</div>
+    </div>
+    <div class="fade-up">
+      <div class="stat-val">100<span>%</span></div>
+      <div class="stat-label">Free to Use</div>
+    </div>
+    <div class="fade-up">
+      <div class="stat-val">0<span>s</span></div>
+      <div class="stat-label">Server Upload — Runs in Browser</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOOLS -->
+<section class="tools-section" id="tools">
+  <div class="container">
+    <div class="tools-header">
+      <div class="section-tag">Our Tools</div>
+      <h2 class="section-title">Everything You Need to<br/>Invest with Conviction</h2>
+      <p class="section-sub">Built on proven value-investing principles. Each tool gives you a clear answer, not just more data to decode.</p>
+    </div>
+    <div class="tools-grid">
+
+      <!-- LIVE TOOL -->
+      <a href="stock-analyzer.html" class="tool-card">
+        <span class="tool-live-badge">Live Now</span>
+        <div class="tool-icon icon-green">📊</div>
+        <div class="tool-name">Stock Fair Value Analyzer</div>
+        <div class="tool-desc">Upload any Screener.in Excel export and get a complete intrinsic value assessment using DCF, Dhandho, and Ben Graham formulas — with a Buffett checklist score.</div>
+        <div class="tool-tags">
+          <span class="tool-tag tag-green">DCF</span>
+          <span class="tool-tag tag-green">Graham</span>
+          <span class="tool-tag tag-green">Dhandho</span>
+        </div>
+        <div class="tool-arrow">→</div>
+      </a>
+
+      <!-- COMING SOON -->
+      <div class="tool-card locked">
+        <span class="tool-soon-badge">Coming Soon</span>
+        <div class="tool-icon icon-blue">🔍</div>
+        <div class="tool-name">Stock Screener</div>
+        <div class="tool-desc">Screen NSE/BSE stocks by P/E, ROE, ROCE, debt ratios, and CAGR in real-time. Find quality companies trading at a discount.</div>
+        <div class="tool-tags">
+          <span class="tool-tag tag-blue">Screener</span>
+          <span class="tool-tag tag-blue">Filter</span>
+          <span class="tool-tag tag-blue">Ranking</span>
+        </div>
+      </div>
+
+      <div class="tool-card locked">
+        <span class="tool-soon-badge">Coming Soon</span>
+        <div class="tool-icon icon-gold">💼</div>
+        <div class="tool-name">Portfolio Analyzer</div>
+        <div class="tool-desc">Upload your portfolio and get a holistic view — concentration risk, sector allocation, combined intrinsic value, and rebalancing suggestions.</div>
+        <div class="tool-tags">
+          <span class="tool-tag tag-gold">Portfolio</span>
+          <span class="tool-tag tag-gold">Risk</span>
+          <span class="tool-tag tag-gold">Allocation</span>
+        </div>
+      </div>
+
+      <div class="tool-card locked">
+        <span class="tool-soon-badge">Coming Soon</span>
+        <div class="tool-icon icon-purple">📈</div>
+        <div class="tool-name">SIP & CAGR Calculator</div>
+        <div class="tool-desc">Model your SIP returns, lump-sum compounding, and goal-based wealth projections with interactive charts and multiple scenarios.</div>
+        <div class="tool-tags">
+          <span class="tool-tag tag-purple">SIP</span>
+          <span class="tool-tag tag-purple">CAGR</span>
+          <span class="tool-tag tag-purple">Goals</span>
+        </div>
+      </div>
+
+      <div class="tool-card locked">
+        <span class="tool-soon-badge">Coming Soon</span>
+        <div class="tool-icon icon-pink">📋</div>
+        <div class="tool-name">Peer Comparison Tool</div>
+        <div class="tool-desc">Compare a company against its sector peers on 20+ financial metrics side-by-side. Spot the best-in-class and the laggards at a glance.</div>
+        <div class="tool-tags">
+          <span class="tool-tag" style="background:rgba(236,72,153,0.12);color:#f472b6">Compare</span>
+          <span class="tool-tag" style="background:rgba(236,72,153,0.12);color:#f472b6">Peers</span>
+        </div>
+      </div>
+
+      <div class="tool-card locked">
+        <span class="tool-soon-badge">Coming Soon</span>
+        <div class="tool-icon icon-green">🎯</div>
+        <div class="tool-name">Watchlist & Alerts</div>
+        <div class="tool-desc">Track your favourite stocks and get notified when they enter your intrinsic value buy-zone. Be ready when Mr. Market offers a discount.</div>
+        <div class="tool-tags">
+          <span class="tool-tag tag-green">Watchlist</span>
+          <span class="tool-tag tag-green">Alerts</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section class="why-section" id="why">
+  <div class="container">
+    <div class="why-grid">
+      <div>
+        <div class="section-tag">Why Fundvisory</div>
+        <h2 class="section-title">Built for the Long-Term<br/>Value Investor</h2>
+        <p class="section-sub" style="margin-bottom:40px;">We don't help you trade. We help you invest — with the patience and discipline of the world's greatest investors baked into every tool.</p>
+        <ul class="why-list">
+          <li class="why-item fade-up">
+            <div class="why-icon-wrap">🧮</div>
+            <div>
+              <div class="why-item-title">Multiple Valuation Models</div>
+              <div class="why-item-desc">DCF, Ben Graham, Dhandho Investor and Expected Returns — each with different assumptions, so you get a range, not a false precision.</div>
+            </div>
+          </li>
+          <li class="why-item fade-up">
+            <div class="why-icon-wrap">🔒</div>
+            <div>
+              <div class="why-item-title">100% Private — Runs in Your Browser</div>
+              <div class="why-item-desc">Your financial data never leaves your device. No account needed, no data collection. Just upload and analyse.</div>
+            </div>
+          </li>
+          <li class="why-item fade-up">
+            <div class="why-icon-wrap">📖</div>
+            <div>
+              <div class="why-item-title">Transparent Calculations</div>
+              <div class="why-item-desc">Every number is explained. No black boxes. Understand exactly how the intrinsic value is derived so you can adjust assumptions with confidence.</div>
+            </div>
+          </li>
+          <li class="why-item fade-up">
+            <div class="why-icon-wrap">🇮🇳</div>
+            <div>
+              <div class="why-item-title">Built for Indian Markets</div>
+              <div class="why-item-desc">Works natively with Screener.in exports. Designed around NSE/BSE listed companies and Indian accounting standards.</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="why-cards-wrap fade-up">
+        <div class="metric-card">
+          <div class="metric-row">
+            <div>
+              <div class="metric-label">10-Year Revenue CAGR</div>
+              <div class="metric-value" style="color:var(--green)">18.4%</div>
+            </div>
+            <span class="badge-green">Excellent</span>
+          </div>
+          <div class="metric-bar-wrap">
+            <div class="metric-bar"><div class="metric-fill fill-green" style="width:75%"></div></div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-row">
+            <div>
+              <div class="metric-label">Return on Equity (ROE)</div>
+              <div class="metric-value">24.1%</div>
+            </div>
+            <span class="badge-green">Above 20%</span>
+          </div>
+          <div class="metric-bar-wrap">
+            <div class="metric-bar"><div class="metric-fill fill-gold" style="width:60%"></div></div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-row">
+            <div>
+              <div class="metric-label">Debt to Equity</div>
+              <div class="metric-value" style="color:var(--green)">0.12×</div>
+            </div>
+            <span class="badge-green">Debt Free</span>
+          </div>
+          <div class="metric-bar-wrap">
+            <div class="metric-bar"><div class="metric-fill fill-blue" style="width:12%"></div></div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Intrinsic Value Range</div>
+          <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--muted);">
+            <span>₹1,890 <small>Low</small></span>
+            <span style="color:var(--gold)">₹2,735 <small>Current</small></span>
+            <span>₹3,580 <small>High</small></span>
+          </div>
+          <div class="metric-bar-wrap">
+            <div class="metric-bar" style="height:8px">
+              <div class="metric-fill fill-green" style="width:55%"></div>
+              <div style="position:absolute;top:-4px;left:67%;width:16px;height:16px;background:var(--gold);border-radius:50%;border:2px solid var(--bg3);transform:translateX(-50%)"></div>
+            </div>
+          </div>
+        </div>
+        <div class="metric-card" style="background:rgba(16,185,129,0.06);border-color:rgba(16,185,129,0.25)">
+          <div class="metric-row">
+            <div>
+              <div class="metric-label">Buffett Checklist Score</div>
+              <div class="metric-value" style="color:var(--green)">8 / 10</div>
+            </div>
+            <div style="font-size:28px">✅</div>
+          </div>
+          <div style="font-size:13px;color:var(--muted);margin-top:8px">Verdict: <strong style="color:var(--green)">Buy — Trading at Fair Value</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div class="container">
+    <div class="section-tag">How it Works</div>
+    <h2 class="section-title">Analysis in 3 Simple Steps</h2>
+    <p class="section-sub">No finance degree required. Just your stock's data from Screener.in and 30 seconds of your time.</p>
+    <div class="steps-grid">
+      <div class="step-card fade-up">
+        <div class="step-num">1</div>
+        <div class="step-title">Export from Screener.in</div>
+        <div class="step-desc">Go to any company on Screener.in, scroll to the bottom, and click "Export to Excel". That's your raw data file.</div>
+      </div>
+      <div class="step-card fade-up">
+        <div class="step-num">2</div>
+        <div class="step-title">Upload & Set Assumptions</div>
+        <div class="step-desc">Drop the file into our tool. Enter Capex from the annual report and set your growth rate and discount rate assumptions.</div>
+      </div>
+      <div class="step-card fade-up">
+        <div class="step-num">3</div>
+        <div class="step-title">Get Your Verdict</div>
+        <div class="step-desc">See the intrinsic value range, Buffett checklist, margin of safety, and a clear Buy / Hold / Avoid recommendation.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PHILOSOPHY -->
+<section class="philosophy-section" id="philosophy">
+  <div class="container">
+    <div class="section-tag">Our Philosophy</div>
+    <h2 class="section-title">We Stand on the Shoulders<br/>of Giants</h2>
+    <p class="section-sub">Every tool we build is rooted in the timeless principles of the world's greatest investors.</p>
+    <div class="philosophy-grid">
+      <div class="phil-card fade-up">
+        <div class="phil-quote">"</div>
+        <div class="phil-text">Price is what you pay. Value is what you get. An investment operation is one which, upon thorough analysis, promises safety of principal and an adequate return.</div>
+        <div class="phil-author">— Benjamin Graham</div>
+      </div>
+      <div class="phil-card fade-up">
+        <div class="phil-quote">"</div>
+        <div class="phil-text">It's far better to buy a wonderful company at a fair price than a fair company at a wonderful price. The stock market is a device for transferring money from the impatient to the patient.</div>
+        <div class="phil-author">— Warren Buffett</div>
+      </div>
+      <div class="phil-card fade-up">
+        <div class="phil-quote">"</div>
+        <div class="phil-text">Heads, I win; tails, I don't lose much. Look for investments where the upside is many times the downside, and the probability of success is high.</div>
+        <div class="phil-author">— Mohnish Pabrai</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-card">
+    <h2>Start Investing with Conviction</h2>
+    <p>Get your first stock analysis done in under a minute — completely free, no sign-up needed.</p>
+    <a href="stock-analyzer.html" class="btn-primary" style="display:inline-flex;font-size:16px;padding:16px 40px;">
+      🔍 Analyse a Stock Now — It's Free
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="logo" style="font-size:20px">
+        <div class="logo-icon" style="width:28px;height:28px;font-size:14px">📈</div>
+        Fundvisory
+      </a>
+      <p>Professional stock analysis tools for the discerning Indian investor. Built on the principles of value investing.</p>
+      <div class="disclaimer">
+        ⚠️ Disclaimer: Fundvisory provides analysis tools for educational purposes only. Nothing on this site constitutes financial advice. Always do your own research before investing.
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Tools</h4>
+      <ul>
+        <li><a href="stock-analyzer.html">Fair Value Analyzer</a></li>
+        <li><a href="#">Stock Screener <small style="color:var(--muted)">(Soon)</small></a></li>
+        <li><a href="#">Portfolio Analyzer <small style="color:var(--muted)">(Soon)</small></a></li>
+        <li><a href="#">SIP Calculator <small style="color:var(--muted)">(Soon)</small></a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Learn</h4>
+      <ul>
+        <li><a href="#">How to use Screener.in</a></li>
+        <li><a href="#">Understanding DCF</a></li>
+        <li><a href="#">Value Investing Basics</a></li>
+        <li><a href="#">Margin of Safety</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Contact</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Use</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 Fundvisory. All rights reserved.</span>
+    <span>Made with ❤️ for Indian investors</span>
+  </div>
+</footer>
+
+<script>
+  // Scroll fade-in
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  // Smooth nav link scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+  });
+
+  // Stagger fade-up delays
+  document.querySelectorAll('.tools-grid .tool-card, .steps-grid .step-card, .philosophy-grid .phil-card').forEach((el, i) => {
+    el.style.transitionDelay = `${i * 0.08}s`;
+    el.classList.add('fade-up');
+    observer.observe(el);
+  });
+</script>
+</body>
 </html>
