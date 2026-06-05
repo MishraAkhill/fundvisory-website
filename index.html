@@ -3,1231 +3,776 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fundvisory — Smart Tools for Smart Investors</title>
-  <meta name="description" content="Professional stock market analysis tools for Indian investors. Value investing made simple with data-driven insights." />
+  <title>FundVisory — Indian Equity Opportunity Discovery Platform</title>
+  <meta name="description" content="FundVisory continuously scans the NSE and surfaces the few stocks setting up for a move — with the entry, stop, target and the reasoning. An Indian equity opportunity discovery platform. Private beta, invite only." />
+  <meta name="robots" content="index, follow" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="FundVisory — Indian Equity Opportunity Discovery Platform" />
+  <meta property="og:description" content="Stop screening 1,000+ NSE stocks by hand. FundVisory scans the market daily and surfaces the few names setting up for a move — with entry, stop, target and the reasoning. Private beta, invite only." />
+  <meta property="og:url" content="https://www.fundvisory.in/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="FundVisory — Indian Equity Opportunity Discovery Platform" />
+  <meta name="twitter:description" content="Stop screening 1,000+ NSE stocks by hand. FundVisory finds where the money is likely to be made next. Private beta, invite only." />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: {
+            brand: {
+              50:  '#eef3ff', 100: '#dce6ff', 200: '#c0d2ff', 300: '#9bb5ff',
+              400: '#5d80fa', 500: '#3366f6', 600: '#1f4ae0', 700: '#1a3cc4',
+              800: '#1c3697', 900: '#1b3179',
+            },
+          },
+          boxShadow: {
+            card: '0 1px 3px rgba(15,23,42,0.08), 0 8px 24px -12px rgba(15,23,42,0.12)',
+            glow: '0 0 0 1px rgba(51,102,246,0.18), 0 24px 70px -30px rgba(51,102,246,0.55)',
+          },
+        },
+      },
+    };
+  </script>
+
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg:        #060c18;
-      --bg2:       #0d1526;
-      --bg3:       #111e35;
-      --border:    rgba(255,255,255,0.07);
-      --green:     #10b981;
-      --green-dim: #059669;
-      --gold:      #f59e0b;
-      --red:       #ef4444;
-      --text:      #e2e8f0;
-      --muted:     #64748b;
-      --subtle:    #1e2d45;
-    }
-
     html { scroll-behavior: smooth; }
+    body { -webkit-font-smoothing: antialiased; }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
+    /* tabular numerals for financial figures */
+    .tnum { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; }
 
-    /* ── TICKER BAR ── */
-    .ticker-bar {
-      background: var(--bg2);
-      border-bottom: 1px solid var(--border);
-      overflow: hidden;
-      height: 36px;
-      display: flex;
-      align-items: center;
-    }
-    .ticker-track {
-      display: flex;
-      gap: 48px;
-      animation: ticker 35s linear infinite;
-      white-space: nowrap;
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0.02em;
-    }
-    .ticker-track:hover { animation-play-state: paused; }
-    .tick-item { display: flex; align-items: center; gap: 8px; }
-    .tick-name { color: var(--muted); }
-    .tick-price { color: var(--text); }
-    .tick-change.up   { color: var(--green); }
-    .tick-change.down { color: var(--red);   }
-    @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-
-    /* ── NAV ── */
-    nav {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(6,12,24,0.85);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border);
-    }
-    .nav-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 24px;
-      height: 64px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 32px;
-    }
-    .logo {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 22px;
-      font-weight: 700;
-      color: #fff;
-      text-decoration: none;
-      letter-spacing: -0.02em;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .logo-icon {
-      width: 32px; height: 32px;
-      background: linear-gradient(135deg, var(--green), #34d399);
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px;
-    }
-    .nav-links {
-      display: flex;
-      gap: 8px;
-      list-style: none;
-    }
-    .nav-links a {
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 500;
-      padding: 8px 14px;
-      border-radius: 8px;
-      transition: all 0.2s;
-    }
-    .nav-links a:hover { color: var(--text); background: var(--subtle); }
-    .nav-cta {
-      background: var(--green);
-      color: #000 !important;
-      font-weight: 600 !important;
-      padding: 8px 20px !important;
-      border-radius: 8px !important;
-    }
-    .nav-cta:hover { background: #34d399 !important; color: #000 !important; }
-
-    /* ── HERO ── */
-    .hero {
-      position: relative;
-      min-height: 90vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      overflow: hidden;
-      padding: 80px 24px;
-    }
-    .hero-bg {
-      position: absolute; inset: 0;
+    /* dark hero gradient */
+    .fv-hero {
       background:
-        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(16,185,129,0.18) 0%, transparent 70%),
-        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(245,158,11,0.08) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 50% at 20% 60%, rgba(59,130,246,0.06) 0%, transparent 60%);
+        radial-gradient(1100px 520px at 78% -8%, rgba(51,102,246,0.30), transparent 60%),
+        radial-gradient(820px 460px at 8% 14%, rgba(28,54,151,0.34), transparent 58%),
+        linear-gradient(180deg, #0a1024 0%, #0c1430 48%, #0a1024 100%);
     }
-    /* animated grid */
-    .hero-grid {
-      position: absolute; inset: 0;
+    .fv-grid {
       background-image:
-        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-      background-size: 60px 60px;
-      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 80%);
-    }
-    .hero-content { position: relative; z-index: 1; max-width: 860px; }
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(16,185,129,0.12);
-      border: 1px solid rgba(16,185,129,0.3);
-      color: var(--green);
-      font-size: 13px;
-      font-weight: 600;
-      padding: 6px 16px;
-      border-radius: 100px;
-      margin-bottom: 28px;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-    .hero-badge-dot {
-      width: 6px; height: 6px;
-      background: var(--green);
-      border-radius: 50%;
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%,100% { opacity: 1; transform: scale(1); }
-      50%      { opacity: 0.5; transform: scale(1.4); }
-    }
-    .hero h1 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(42px, 7vw, 76px);
-      font-weight: 800;
-      line-height: 1.08;
-      letter-spacing: -0.03em;
-      margin-bottom: 24px;
-      color: #fff;
-    }
-    .hero h1 .accent { color: var(--green); }
-    .hero h1 .gold   { color: var(--gold); }
-    .hero-sub {
-      font-size: clamp(16px, 2vw, 20px);
-      color: var(--muted);
-      max-width: 580px;
-      margin: 0 auto 40px;
-      line-height: 1.7;
-      font-weight: 400;
-    }
-    .hero-actions {
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: 64px;
-    }
-    .btn-primary {
-      background: var(--green);
-      color: #000;
-      font-weight: 700;
-      font-size: 15px;
-      padding: 14px 32px;
-      border-radius: 12px;
-      text-decoration: none;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      box-shadow: 0 0 32px rgba(16,185,129,0.35);
-    }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 48px rgba(16,185,129,0.5); background: #34d399; }
-    .btn-secondary {
-      background: transparent;
-      color: var(--text);
-      font-weight: 600;
-      font-size: 15px;
-      padding: 14px 32px;
-      border-radius: 12px;
-      text-decoration: none;
-      border: 1px solid var(--border);
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .btn-secondary:hover { border-color: rgba(255,255,255,0.2); background: var(--subtle); }
-
-    /* hero chart preview */
-    .hero-chart-preview {
-      position: relative;
-      display: inline-block;
-      max-width: 700px;
-      width: 100%;
-    }
-    .chart-card {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 24px;
-      text-align: left;
-      box-shadow: 0 40px 80px rgba(0,0,0,0.6);
-    }
-    .chart-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 20px;
-    }
-    .chart-title { font-size: 13px; color: var(--muted); font-weight: 500; }
-    .chart-stock { font-size: 20px; font-weight: 700; color: #fff; margin-top: 2px; }
-    .chart-price { text-align: right; }
-    .chart-val { font-size: 22px; font-weight: 700; color: #fff; }
-    .chart-chg { font-size: 13px; color: var(--green); font-weight: 600; }
-    .mini-chart { height: 80px; position: relative; }
-    .mini-chart svg { width: 100%; height: 100%; }
-    .iv-bar-wrap { margin-top: 20px; }
-    .iv-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; font-weight: 500; }
-    .iv-bar { height: 8px; background: var(--subtle); border-radius: 4px; position: relative; overflow: visible; }
-    .iv-fill { height: 100%; background: linear-gradient(90deg, var(--green), #34d399); border-radius: 4px; width: 55%; }
-    .iv-marker {
-      position: absolute;
-      top: -4px;
-      left: 68%;
-      width: 16px; height: 16px;
-      background: var(--gold);
-      border-radius: 50%;
-      border: 2px solid var(--bg2);
-      transform: translateX(-50%);
-    }
-    .iv-range { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 8px; }
-    .badge-green { display: inline-block; background: rgba(16,185,129,0.15); color: var(--green); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; }
-    .verdict-row { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
-    .verdict-text { font-size: 15px; font-weight: 700; color: var(--green); }
-
-    /* ── STATS ── */
-    .stats-section {
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      background: var(--bg2);
-      padding: 48px 24px;
-    }
-    .stats-grid {
-      max-width: 1000px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 32px;
-      text-align: center;
-    }
-    .stat-val {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 40px;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: -0.02em;
-      line-height: 1;
-    }
-    .stat-val span { color: var(--green); }
-    .stat-label { font-size: 14px; color: var(--muted); margin-top: 8px; font-weight: 500; }
-
-    /* ── SECTIONS COMMON ── */
-    section { padding: 96px 24px; }
-    .container { max-width: 1200px; margin: 0 auto; }
-    .section-tag {
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--green);
-      margin-bottom: 16px;
-    }
-    .section-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(28px, 4vw, 44px);
-      font-weight: 700;
-      color: #fff;
-      line-height: 1.15;
-      letter-spacing: -0.02em;
-      margin-bottom: 16px;
-    }
-    .section-sub {
-      font-size: 17px;
-      color: var(--muted);
-      max-width: 560px;
-      line-height: 1.7;
+        linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+      background-size: 46px 46px;
+      -webkit-mask-image: radial-gradient(720px 420px at 70% 0%, #000 35%, transparent 78%);
+              mask-image: radial-gradient(720px 420px at 70% 0%, #000 35%, transparent 78%);
     }
 
-    /* ── TOOLS ── */
-    .tools-section { background: var(--bg); }
-    .tools-header { margin-bottom: 56px; }
-    .tools-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 24px;
-    }
-    .tool-card {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 32px;
-      position: relative;
-      overflow: hidden;
-      transition: all 0.3s;
-      cursor: pointer;
-      text-decoration: none;
-      display: block;
-    }
-    .tool-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--green), #34d399);
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .tool-card:hover { border-color: rgba(16,185,129,0.3); transform: translateY(-4px); box-shadow: 0 24px 48px rgba(0,0,0,0.4); }
-    .tool-card:hover::before { opacity: 1; }
-    .tool-card.locked {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    .tool-card.locked:hover { transform: none; box-shadow: none; border-color: var(--border); }
-    .tool-card.locked::before { display: none; }
-    .tool-icon {
-      width: 52px; height: 52px;
-      border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 24px;
-      margin-bottom: 20px;
-    }
-    .icon-green { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.2); }
-    .icon-blue  { background: rgba(59,130,246,0.12);  border: 1px solid rgba(59,130,246,0.2);  }
-    .icon-gold  { background: rgba(245,158,11,0.12);  border: 1px solid rgba(245,158,11,0.2);  }
-    .icon-purple{ background: rgba(168,85,247,0.12);  border: 1px solid rgba(168,85,247,0.2);  }
-    .icon-pink  { background: rgba(236,72,153,0.12);  border: 1px solid rgba(236,72,153,0.2);  }
-    .tool-name {
-      font-size: 18px;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 8px;
-    }
-    .tool-desc {
-      font-size: 14px;
-      color: var(--muted);
-      line-height: 1.6;
-      margin-bottom: 20px;
-    }
-    .tool-tags { display: flex; gap: 8px; flex-wrap: wrap; }
-    .tool-tag {
-      font-size: 11px;
-      font-weight: 600;
-      padding: 4px 10px;
-      border-radius: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-    .tag-green  { background: rgba(16,185,129,0.12); color: var(--green); }
-    .tag-blue   { background: rgba(59,130,246,0.12); color: #60a5fa; }
-    .tag-gold   { background: rgba(245,158,11,0.12); color: var(--gold); }
-    .tag-purple { background: rgba(168,85,247,0.12); color: #c084fc; }
-    .tool-live-badge {
-      position: absolute;
-      top: 24px; right: 24px;
-      background: var(--green);
-      color: #000;
-      font-size: 10px;
-      font-weight: 800;
-      padding: 4px 10px;
-      border-radius: 100px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-    .tool-soon-badge {
-      position: absolute;
-      top: 24px; right: 24px;
-      background: var(--subtle);
-      color: var(--muted);
-      font-size: 10px;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 100px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-    .tool-arrow {
-      position: absolute;
-      bottom: 32px; right: 32px;
-      width: 32px; height: 32px;
-      background: var(--subtle);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px;
-      color: var(--muted);
-      transition: all 0.2s;
-    }
-    .tool-card:not(.locked):hover .tool-arrow {
-      background: var(--green);
-      color: #000;
+    /* macOS-style window chrome for product mockups */
+    .winbar { display:flex; align-items:center; gap:6px; padding:10px 14px; border-bottom:1px solid rgba(15,23,42,0.08); }
+    .winbar i { width:11px; height:11px; border-radius:9999px; display:inline-block; }
+
+    /* scroll reveal */
+    .reveal { opacity:0; transform: translateY(22px); transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1); }
+    .reveal.in { opacity:1; transform:none; }
+
+    /* subtle radar pulse */
+    @keyframes fvpulse { 0% { transform: scale(.85); opacity:.65 } 70% { transform: scale(1.9); opacity:0 } 100% { opacity:0 } }
+    .fv-pulse::after {
+      content:''; position:absolute; inset:0; border-radius:9999px;
+      background: rgba(245,158,11,0.45); animation: fvpulse 2.4s ease-out infinite;
     }
 
-    /* ── WHY SECTION ── */
-    .why-section { background: var(--bg2); }
-    .why-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 80px;
-      align-items: center;
-    }
-    .why-list { list-style: none; display: flex; flex-direction: column; gap: 32px; }
-    .why-item { display: flex; gap: 20px; }
-    .why-icon-wrap {
-      width: 48px; height: 48px;
-      border-radius: 12px;
-      background: rgba(16,185,129,0.1);
-      border: 1px solid rgba(16,185,129,0.2);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 20px;
-      flex-shrink: 0;
-    }
-    .why-item-title { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 6px; }
-    .why-item-desc  { font-size: 14px; color: var(--muted); line-height: 1.65; }
-    /* right panel: stacked cards */
-    .why-cards-wrap { position: relative; }
-    .metric-card {
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 20px 24px;
-      margin-bottom: 16px;
-    }
-    .metric-label { font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 6px; }
-    .metric-value { font-size: 22px; font-weight: 700; color: #fff; }
-    .metric-row { display: flex; justify-content: space-between; align-items: center; }
-    .metric-bar-wrap { margin-top: 10px; }
-    .metric-bar { height: 5px; background: var(--subtle); border-radius: 3px; }
-    .metric-fill { height: 100%; border-radius: 3px; }
-    .fill-green  { background: var(--green); }
-    .fill-gold   { background: var(--gold);  }
-    .fill-blue   { background: #60a5fa;      }
-
-    /* ── HOW IT WORKS ── */
-    .how-section { background: var(--bg); }
-    .steps-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 32px;
-      margin-top: 56px;
-      position: relative;
-    }
-    .steps-grid::before {
-      content: '';
-      position: absolute;
-      top: 32px;
-      left: calc(16.6% + 16px);
-      right: calc(16.6% + 16px);
-      height: 1px;
-      background: linear-gradient(90deg, var(--green), rgba(16,185,129,0.1), var(--green));
-    }
-    .step-card { text-align: center; }
-    .step-num {
-      width: 64px; height: 64px;
-      background: rgba(16,185,129,0.1);
-      border: 1px solid rgba(16,185,129,0.3);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--green);
-      margin: 0 auto 24px;
-      position: relative;
-      z-index: 1;
-      background: var(--bg);
-    }
-    .step-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 12px; }
-    .step-desc  { font-size: 14px; color: var(--muted); line-height: 1.65; }
-
-    /* ── PHILOSOPHY ── */
-    .philosophy-section { background: var(--bg2); }
-    .philosophy-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      margin-top: 56px;
-    }
-    .phil-card {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 32px;
-    }
-    .phil-quote {
-      font-size: 36px;
-      color: var(--green);
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 800;
-      line-height: 1;
-      margin-bottom: 16px;
-    }
-    .phil-text { font-size: 15px; color: var(--muted); line-height: 1.7; }
-    .phil-author { margin-top: 16px; font-size: 13px; color: var(--text); font-weight: 600; }
-
-    /* ── CTA BANNER ── */
-    .cta-section {
-      background: var(--bg);
-      padding: 80px 24px;
-    }
-    .cta-card {
-      max-width: 900px;
-      margin: 0 auto;
-      background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(16,185,129,0.04));
-      border: 1px solid rgba(16,185,129,0.25);
-      border-radius: 28px;
-      padding: 64px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .cta-card::before {
-      content: '';
-      position: absolute;
-      top: -80px; right: -80px;
-      width: 300px; height: 300px;
-      background: radial-gradient(circle, rgba(16,185,129,0.15) 0%, transparent 70%);
-    }
-    .cta-card h2 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(28px, 4vw, 44px);
-      font-weight: 700;
-      color: #fff;
-      line-height: 1.2;
-      letter-spacing: -0.02em;
-      margin-bottom: 16px;
-    }
-    .cta-card p {
-      font-size: 17px;
-      color: var(--muted);
-      margin-bottom: 36px;
-      line-height: 1.7;
-    }
-
-    /* ── FOOTER ── */
-    footer {
-      background: var(--bg2);
-      border-top: 1px solid var(--border);
-      padding: 56px 24px 32px;
-    }
-    .footer-grid {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr;
-      gap: 48px;
-      margin-bottom: 48px;
-    }
-    .footer-brand p {
-      font-size: 14px;
-      color: var(--muted);
-      line-height: 1.7;
-      margin-top: 12px;
-      max-width: 260px;
-    }
-    .footer-col h4 {
-      font-size: 13px;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      margin-bottom: 16px;
-    }
-    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-    .footer-col a {
-      font-size: 14px;
-      color: var(--muted);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-    .footer-col a:hover { color: var(--text); }
-    .footer-bottom {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding-top: 24px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 13px;
-      color: var(--muted);
-    }
-    .disclaimer {
-      background: rgba(245,158,11,0.06);
-      border: 1px solid rgba(245,158,11,0.15);
-      border-radius: 10px;
-      padding: 12px 20px;
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.6;
-      margin-top: 24px;
-    }
-
-    /* ── SCROLL ANIMATIONS ── */
-    .fade-up {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
-    .fade-up.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 900px) {
-      .stats-grid         { grid-template-columns: repeat(2, 1fr); }
-      .why-grid           { grid-template-columns: 1fr; }
-      .steps-grid         { grid-template-columns: 1fr; }
-      .steps-grid::before { display: none; }
-      .philosophy-grid    { grid-template-columns: 1fr; }
-      .footer-grid        { grid-template-columns: 1fr 1fr; }
-      .nav-links          { display: none; }
-      .cta-card           { padding: 40px 28px; }
-    }
-    @media (max-width: 600px) {
-      .stats-grid  { grid-template-columns: repeat(2, 1fr); gap: 24px; }
-      .footer-grid { grid-template-columns: 1fr; }
-      .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
-    }
+    /* nav scrolled state */
+    .nav-solid { background: rgba(10,16,36,0.82); backdrop-filter: blur(12px); border-bottom:1px solid rgba(255,255,255,0.07); }
   </style>
 </head>
-<body>
 
-<!-- TICKER -->
-<div class="ticker-bar">
-  <div class="ticker-track" id="tickerTrack">
-    <!-- populated by JS -->
-    <div class="tick-item"><span class="tick-name" style="color:var(--muted);font-style:italic;font-size:11px">Loading live prices…</span></div>
-  </div>
-</div>
-<script>
-(function() {
-  const STOCKS = [
-    {sym:'RELIANCE.NS', label:'RELIANCE'},
-    {sym:'TCS.NS',      label:'TCS'},
-    {sym:'HDFCBANK.NS', label:'HDFC BANK'},
-    {sym:'INFY.NS',     label:'INFY'},
-    {sym:'WIPRO.NS',    label:'WIPRO'},
-    {sym:'BAJFINANCE.NS',label:'BAJFINANCE'},
-    {sym:'ICICIBANK.NS',label:'ICICIBANK'},
-    {sym:'MARUTI.NS',   label:'MARUTI'},
-    {sym:'NESTLEIND.NS',label:'NESTLEIND'},
-    {sym:'TITAN.NS',    label:'TITAN'},
-    {sym:'ASIANPAINT.NS',label:'ASIANPAINT'},
-    {sym:'PIDILITIND.NS',label:'PIDILITIND'},
-    {sym:'LTIM.NS',     label:'LTIMindtree'},
-    {sym:'KOTAKBANK.NS',label:'KOTAK BANK'},
-    {sym:'SUNPHARMA.NS',label:'SUN PHARMA'},
-  ];
+<body class="bg-white text-slate-800 font-sans antialiased">
 
-  function fmtPrice(p) {
-    return '₹' + Number(p).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
-  }
-
-  function buildTicker(quotes) {
-    const track = document.getElementById('tickerTrack');
-    if (!track) return;
-    // build items × 2 for seamless loop
-    let html = '';
-    for (let pass = 0; pass < 2; pass++) {
-      for (const q of quotes) {
-        const chg = q.regularMarketChangePercent || 0;
-        const cls = chg >= 0 ? 'up' : 'down';
-        const sign = chg >= 0 ? '+' : '';
-        html += `<div class="tick-item">
-          <span class="tick-name">${q._label}</span>
-          <span class="tick-price">${fmtPrice(q.regularMarketPrice)}</span>
-          <span class="tick-change ${cls}">${sign}${chg.toFixed(2)}%</span>
-        </div>`;
-      }
-    }
-    track.innerHTML = html;
-    // adjust animation speed based on count
-    const duration = Math.max(30, quotes.length * 4);
-    track.style.animationDuration = duration + 's';
-  }
-
-  async function fetchLive() {
-    const syms = STOCKS.map(s => s.sym).join(',');
-    const labelMap = Object.fromEntries(STOCKS.map(s => [s.sym, s.label]));
-
-    // Try Yahoo Finance via corsproxy.io
-    const yUrl = `https://query1.finance.yahoo.com/v8/finance/quote?symbols=${syms}&fields=symbol,regularMarketPrice,regularMarketChangePercent`;
-    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(yUrl)}`;
-
-    try {
-      const r = await fetch(proxyUrl, {signal: AbortSignal.timeout(6000)});
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      const json = await r.json();
-      const quotes = (json?.quoteResponse?.result || []).map(q => ({
-        ...q,
-        _label: labelMap[q.symbol] || q.symbol.replace('.NS','')
-      })).filter(q => q.regularMarketPrice);
-      if (quotes.length > 0) { buildTicker(quotes); return; }
-    } catch(e) { /* fall through to direct */ }
-
-    // Fallback: try Yahoo Finance directly (works when CORS allows)
-    try {
-      const r2 = await fetch(`https://query2.finance.yahoo.com/v8/finance/quote?symbols=${syms}&fields=symbol,regularMarketPrice,regularMarketChangePercent`, {signal: AbortSignal.timeout(5000)});
-      if (!r2.ok) throw new Error('HTTP ' + r2.status);
-      const json2 = await r2.json();
-      const quotes2 = (json2?.quoteResponse?.result || []).map(q => ({
-        ...q,
-        _label: labelMap[q.symbol] || q.symbol.replace('.NS','')
-      })).filter(q => q.regularMarketPrice);
-      if (quotes2.length > 0) { buildTicker(quotes2); return; }
-    } catch(e) { /* fall through to static */ }
-
-    // Static fallback with disclaimer
-    const track = document.getElementById('tickerTrack');
-    if (track) {
-      const staticData = [
-        {_label:'RELIANCE', regularMarketPrice:2941, regularMarketChangePercent:1.2},
-        {_label:'TCS', regularMarketPrice:3782, regularMarketChangePercent:0.8},
-        {_label:'HDFC BANK', regularMarketPrice:1624, regularMarketChangePercent:-0.3},
-        {_label:'INFY', regularMarketPrice:1489, regularMarketChangePercent:0.5},
-        {_label:'WIPRO', regularMarketPrice:481, regularMarketChangePercent:1.7},
-        {_label:'BAJFINANCE', regularMarketPrice:7210, regularMarketChangePercent:-0.6},
-        {_label:'ICICIBANK', regularMarketPrice:1198, regularMarketChangePercent:1.1},
-        {_label:'MARUTI', regularMarketPrice:12340, regularMarketChangePercent:-0.2},
-        {_label:'NESTLEIND', regularMarketPrice:2180, regularMarketChangePercent:0.9},
-        {_label:'TITAN', regularMarketPrice:3421, regularMarketChangePercent:2.1},
-      ];
-      buildTicker(staticData);
-      // prepend disclaimer
-      track.insertAdjacentHTML('afterbegin', `<div class="tick-item"><span class="tick-name" style="color:#f59e0b;font-size:11px;font-weight:700">⚠ ILLUSTRATIVE · NOT LIVE</span></div>`);
-    }
-  }
-
-  // Run after page load
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', fetchLive);
-  } else {
-    fetchLive();
-  }
-  // Refresh every 5 minutes
-  setInterval(fetchLive, 5 * 60 * 1000);
-})();
-</script>
-
-<!-- NAV -->
-<nav>
-  <div class="nav-inner">
-    <a href="#" class="logo">
-      <div class="logo-icon">📈</div>
-      Fundvisory
-    </a>
-    <ul class="nav-links">
-      <li><a href="#tools">Tools</a></li>
-      <li><a href="#why">Why Us</a></li>
-      <li><a href="#how">How it Works</a></li>
-      <li><a href="#philosophy">Philosophy</a></li>
-      <li><a href="stock-analyzer.html" class="nav-cta">Try Free →</a></li>
-    </ul>
-  </div>
-</nav>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-grid"></div>
-  <div class="hero-content">
-    <div class="hero-badge">
-      <div class="hero-badge-dot"></div>
-      Value Investing · Made Simple
-    </div>
-    <h1>
-      Know What a Stock is<br/>
-      <span class="accent">Really Worth</span>
-    </h1>
-    <p class="hero-sub">
-      Professional-grade analysis tools built for Indian investors.
-      Upload a Screener.in export and get a complete fair value assessment in seconds — powered by DCF, Graham, and Dhandho frameworks.
-    </p>
-    <div class="hero-actions">
-      <a href="stock-analyzer.html" class="btn-primary">
-        🔍 Analyse a Stock Free
-      </a>
-      <a href="#tools" class="btn-secondary">
-        Explore All Tools →
-      </a>
-    </div>
-
-    <!-- Preview Card -->
-    <div class="hero-chart-preview fade-up">
-      <div class="chart-card">
-        <div class="chart-header">
-          <div>
-            <div class="chart-title">NSE · Fair Value Analysis</div>
-            <div class="chart-stock">PIDILITIND</div>
-          </div>
-          <div class="chart-price">
-            <div class="chart-val">₹2,840</div>
-            <div class="chart-chg">↑ +2.3% today</div>
-          </div>
-        </div>
-        <div class="mini-chart">
-          <svg viewBox="0 0 600 80" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#10b981" stop-opacity="0.3"/>
-                <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
-              </linearGradient>
-            </defs>
-            <path d="M0 65 L50 58 L100 62 L150 50 L200 45 L250 48 L300 35 L350 30 L400 25 L450 18 L500 12 L550 8 L600 5" stroke="#10b981" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-            <path d="M0 65 L50 58 L100 62 L150 50 L200 45 L250 48 L300 35 L350 30 L400 25 L450 18 L500 12 L550 8 L600 5 L600 80 L0 80Z" fill="url(#chartGrad)"/>
-          </svg>
-        </div>
-        <div class="iv-bar-wrap">
-          <div class="iv-label">Intrinsic Value Range</div>
-          <div class="iv-bar">
-            <div class="iv-fill"></div>
-            <div class="iv-marker" title="Current Price"></div>
-          </div>
-          <div class="iv-range">
-            <span>₹1,890 <em style="color:var(--muted);font-style:normal;font-size:10px">IV Low</em></span>
-            <span style="color:var(--gold);font-weight:600">▲ ₹2,840 Current</span>
-            <span>₹3,580 <em style="color:var(--muted);font-style:normal;font-size:10px">IV High</em></span>
-          </div>
-        </div>
-        <div class="verdict-row">
-          <span class="verdict-text">✅ Buy — Trading within Fair Value Range</span>
-          <span class="badge-green">Checklist 8/10</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- STATS -->
-<div class="stats-section">
-  <div class="stats-grid">
-    <div class="fade-up">
-      <div class="stat-val">4<span>+</span></div>
-      <div class="stat-label">Valuation Frameworks</div>
-    </div>
-    <div class="fade-up">
-      <div class="stat-val">10<span>+</span></div>
-      <div class="stat-label">Financial Metrics Analyzed</div>
-    </div>
-    <div class="fade-up">
-      <div class="stat-val">100<span>%</span></div>
-      <div class="stat-label">Free to Use</div>
-    </div>
-    <div class="fade-up">
-      <div class="stat-val">0<span>s</span></div>
-      <div class="stat-label">Server Upload — Runs in Browser</div>
-    </div>
-  </div>
-</div>
-
-<!-- TOOLS -->
-<section class="tools-section" id="tools">
-  <div class="container">
-    <div class="tools-header">
-      <div class="section-tag">Our Tools</div>
-      <h2 class="section-title">Everything You Need to<br/>Invest with Conviction</h2>
-      <p class="section-sub">Built on proven value-investing principles. Each tool gives you a clear answer, not just more data to decode.</p>
-    </div>
-    <div class="tools-grid">
-
-      <!-- LIVE TOOL -->
-      <a href="stock-analyzer.html" class="tool-card">
-        <span class="tool-live-badge">Live Now</span>
-        <div class="tool-icon icon-green">📊</div>
-        <div class="tool-name">Stock Fair Value Analyzer</div>
-        <div class="tool-desc">Upload any Screener.in Excel export and get a complete intrinsic value assessment using DCF, Dhandho, and Ben Graham formulas — with a Buffett checklist score.</div>
-        <div class="tool-tags">
-          <span class="tool-tag tag-green">DCF</span>
-          <span class="tool-tag tag-green">Graham</span>
-          <span class="tool-tag tag-green">Dhandho</span>
-        </div>
-        <div class="tool-arrow">→</div>
+  <!-- ─────────────────────────  NAV  ───────────────────────── -->
+  <header id="nav" class="fixed inset-x-0 top-0 z-50 transition-all duration-300">
+    <nav class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 lg:px-8">
+      <a href="#top" class="flex items-center gap-2.5">
+        <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-brand-400 to-brand-700 text-white shadow-glow">
+          <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5"><path d="M4 15l4-5 3.5 3.5L17 6l3 3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="text-[17px] font-bold tracking-tight text-white">FundVisory</span>
       </a>
 
-      <!-- COMING SOON -->
-      <div class="tool-card locked">
-        <span class="tool-soon-badge">Coming Soon</span>
-        <div class="tool-icon icon-blue">🔍</div>
-        <div class="tool-name">Stock Screener</div>
-        <div class="tool-desc">Screen NSE/BSE stocks by P/E, ROE, ROCE, debt ratios, and CAGR in real-time. Find quality companies trading at a discount.</div>
-        <div class="tool-tags">
-          <span class="tool-tag tag-blue">Screener</span>
-          <span class="tool-tag tag-blue">Filter</span>
-          <span class="tool-tag tag-blue">Ranking</span>
-        </div>
+      <div class="hidden items-center gap-8 md:flex">
+        <a href="#how" class="text-sm font-medium text-slate-300 transition hover:text-white">How It Works</a>
+        <a href="#features" class="text-sm font-medium text-slate-300 transition hover:text-white">Features</a>
+        <a href="#inside" class="text-sm font-medium text-slate-300 transition hover:text-white">Inside the Product</a>
+        <a href="#faq" class="text-sm font-medium text-slate-300 transition hover:text-white">FAQ</a>
       </div>
 
-      <div class="tool-card locked">
-        <span class="tool-soon-badge">Coming Soon</span>
-        <div class="tool-icon icon-gold">💼</div>
-        <div class="tool-name">Portfolio Analyzer</div>
-        <div class="tool-desc">Upload your portfolio and get a holistic view — concentration risk, sector allocation, combined intrinsic value, and rebalancing suggestions.</div>
-        <div class="tool-tags">
-          <span class="tool-tag tag-gold">Portfolio</span>
-          <span class="tool-tag tag-gold">Risk</span>
-          <span class="tool-tag tag-gold">Allocation</span>
-        </div>
+      <div class="flex items-center gap-2.5">
+        <a href="https://app.fundvisory.in/login"
+           class="hidden rounded-lg px-3.5 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/10 hover:text-white sm:block">
+          Sign In
+        </a>
+        <a href="#apply"
+           class="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-100">
+          Join Beta
+        </a>
       </div>
+    </nav>
+  </header>
 
-      <div class="tool-card locked">
-        <span class="tool-soon-badge">Coming Soon</span>
-        <div class="tool-icon icon-purple">📈</div>
-        <div class="tool-name">SIP & CAGR Calculator</div>
-        <div class="tool-desc">Model your SIP returns, lump-sum compounding, and goal-based wealth projections with interactive charts and multiple scenarios.</div>
-        <div class="tool-tags">
-          <span class="tool-tag tag-purple">SIP</span>
-          <span class="tool-tag tag-purple">CAGR</span>
-          <span class="tool-tag tag-purple">Goals</span>
-        </div>
-      </div>
+  <!-- ─────────────────────────  HERO  ───────────────────────── -->
+  <section id="top" class="fv-hero relative overflow-hidden pt-28 pb-20 lg:pt-36 lg:pb-28">
+    <div class="fv-grid pointer-events-none absolute inset-0"></div>
 
-      <div class="tool-card locked">
-        <span class="tool-soon-badge">Coming Soon</span>
-        <div class="tool-icon icon-pink">📋</div>
-        <div class="tool-name">Peer Comparison Tool</div>
-        <div class="tool-desc">Compare a company against its sector peers on 20+ financial metrics side-by-side. Spot the best-in-class and the laggards at a glance.</div>
-        <div class="tool-tags">
-          <span class="tool-tag" style="background:rgba(236,72,153,0.12);color:#f472b6">Compare</span>
-          <span class="tool-tag" style="background:rgba(236,72,153,0.12);color:#f472b6">Peers</span>
-        </div>
-      </div>
-
-      <div class="tool-card locked">
-        <span class="tool-soon-badge">Coming Soon</span>
-        <div class="tool-icon icon-green">🎯</div>
-        <div class="tool-name">Watchlist & Alerts</div>
-        <div class="tool-desc">Track your favourite stocks and get notified when they enter your intrinsic value buy-zone. Be ready when Mr. Market offers a discount.</div>
-        <div class="tool-tags">
-          <span class="tool-tag tag-green">Watchlist</span>
-          <span class="tool-tag tag-green">Alerts</span>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- WHY -->
-<section class="why-section" id="why">
-  <div class="container">
-    <div class="why-grid">
+    <div class="relative mx-auto grid max-w-7xl items-center gap-14 px-4 lg:grid-cols-[1.05fr_1fr] lg:px-8">
+      <!-- copy -->
       <div>
-        <div class="section-tag">Why Fundvisory</div>
-        <h2 class="section-title">Built for the Long-Term<br/>Value Investor</h2>
-        <p class="section-sub" style="margin-bottom:40px;">We don't help you trade. We help you invest — with the patience and discipline of the world's greatest investors baked into every tool.</p>
-        <ul class="why-list">
-          <li class="why-item fade-up">
-            <div class="why-icon-wrap">🧮</div>
-            <div>
-              <div class="why-item-title">Multiple Valuation Models</div>
-              <div class="why-item-desc">DCF, Ben Graham, Dhandho Investor and Expected Returns — each with different assumptions, so you get a range, not a false precision.</div>
+        <div class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-[12px] font-semibold tracking-wide text-brand-200">
+          <span class="relative grid h-2 w-2 place-items-center">
+            <span class="absolute inline-flex h-2 w-2 animate-ping rounded-full bg-amber-400 opacity-75"></span>
+            <span class="relative inline-flex h-2 w-2 rounded-full bg-amber-400"></span>
+          </span>
+          PRIVATE BETA · INVITE ONLY
+        </div>
+
+        <h1 class="mt-6 text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
+          Find where the money is<br class="hidden sm:block" />
+          likely to be made next.
+        </h1>
+
+        <p class="mt-5 max-w-xl text-lg leading-relaxed text-slate-300">
+          FundVisory is an <span class="font-semibold text-white">Indian equity opportunity discovery platform</span>.
+          It continuously scans the NSE and surfaces the few stocks setting up for a move — with the entry,
+          stop, target and the reasoning — so you spend your time deciding, not screening.
+        </p>
+
+        <div class="mt-8 flex flex-wrap items-center gap-3">
+          <a href="#apply"
+             class="rounded-xl bg-brand-500 px-6 py-3.5 text-sm font-semibold text-white shadow-glow transition hover:bg-brand-400">
+            Request Beta Access →
+          </a>
+          <a href="#how"
+             class="rounded-xl border border-white/15 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-white/10">
+            See how it works
+          </a>
+        </div>
+
+        <!-- stat strip -->
+        <div class="mt-10 grid max-w-lg grid-cols-3 gap-6">
+          <div>
+            <div class="tnum text-2xl font-extrabold text-white">1,033+</div>
+            <div class="mt-0.5 text-xs font-medium text-slate-400">NSE stocks scanned daily</div>
+          </div>
+          <div>
+            <div class="tnum text-2xl font-extrabold text-white">0–100</div>
+            <div class="mt-0.5 text-xs font-medium text-slate-400">Opportunity score per name</div>
+          </div>
+          <div>
+            <div class="text-2xl font-extrabold text-white">Live</div>
+            <div class="mt-0.5 text-xs font-medium text-slate-400">Board refreshes through the day</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- hero product mock: Today's Best Opportunities -->
+      <div class="reveal">
+        <div class="overflow-hidden rounded-2xl bg-white shadow-glow ring-1 ring-black/5">
+          <div class="winbar bg-slate-50">
+            <i class="bg-rose-400"></i><i class="bg-amber-400"></i><i class="bg-emerald-400"></i>
+            <span class="ml-2 text-[11px] font-medium text-slate-400">app.fundvisory.in · Today's Best Opportunities</span>
+          </div>
+
+          <div class="p-5">
+            <!-- Top Pick hero card -->
+            <div class="rounded-xl border border-amber-200 bg-gradient-to-br from-amber-50 to-white p-4">
+              <div class="flex items-center justify-between">
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-amber-700">★ Top Pick</span>
+                <span class="rounded-md bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-700">Buy Now</span>
+              </div>
+              <div class="mt-2.5 flex items-end justify-between">
+                <div>
+                  <div class="text-lg font-bold text-slate-900">BHARAT DYNAMICS</div>
+                  <div class="text-xs text-slate-500">Defence · Stage 2 breakout · RS +34 vs NIFTY</div>
+                </div>
+                <div class="text-right">
+                  <div class="tnum text-3xl font-extrabold text-slate-900">86</div>
+                  <div class="text-[10px] font-medium uppercase tracking-wide text-slate-400">Opportunity</div>
+                </div>
+              </div>
+              <div class="mt-3 grid grid-cols-3 gap-2 tnum text-center">
+                <div class="rounded-lg bg-white px-2 py-1.5 ring-1 ring-slate-100"><div class="text-[10px] text-slate-400">Entry</div><div class="text-sm font-bold text-slate-900">₹1,642</div></div>
+                <div class="rounded-lg bg-white px-2 py-1.5 ring-1 ring-slate-100"><div class="text-[10px] text-slate-400">Stop</div><div class="text-sm font-bold text-rose-600">₹1,548</div></div>
+                <div class="rounded-lg bg-white px-2 py-1.5 ring-1 ring-slate-100"><div class="text-[10px] text-slate-400">Target</div><div class="text-sm font-bold text-emerald-600">₹1,890</div></div>
+              </div>
             </div>
-          </li>
-          <li class="why-item fade-up">
-            <div class="why-icon-wrap">🔒</div>
-            <div>
-              <div class="why-item-title">100% Private — Runs in Your Browser</div>
-              <div class="why-item-desc">Your financial data never leaves your device. No account needed, no data collection. Just upload and analyse.</div>
+
+            <!-- board rows -->
+            <div class="mt-3 space-y-1.5">
+              <div class="flex items-center justify-between rounded-lg px-3 py-2 hover:bg-slate-50">
+                <div class="flex items-center gap-3">
+                  <span class="tnum text-sm font-bold text-slate-700">79</span>
+                  <span class="text-sm font-semibold text-slate-800">KAYNES TECH</span>
+                </div>
+                <span class="rounded-md bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">Buy Now</span>
+              </div>
+              <div class="flex items-center justify-between rounded-lg px-3 py-2 hover:bg-slate-50">
+                <div class="flex items-center gap-3">
+                  <span class="tnum text-sm font-bold text-slate-700">74</span>
+                  <span class="text-sm font-semibold text-slate-800">PERSISTENT</span>
+                </div>
+                <span class="rounded-md bg-sky-100 px-2 py-0.5 text-[11px] font-semibold text-sky-700">Watch Closely</span>
+              </div>
+              <div class="flex items-center justify-between rounded-lg px-3 py-2 hover:bg-slate-50">
+                <div class="flex items-center gap-3">
+                  <span class="tnum text-sm font-bold text-slate-700">71</span>
+                  <span class="text-sm font-semibold text-slate-800">CG POWER</span>
+                </div>
+                <span class="rounded-md bg-sky-100 px-2 py-0.5 text-[11px] font-semibold text-sky-700">Watch Closely</span>
+              </div>
             </div>
-          </li>
-          <li class="why-item fade-up">
-            <div class="why-icon-wrap">📖</div>
-            <div>
-              <div class="why-item-title">Transparent Calculations</div>
-              <div class="why-item-desc">Every number is explained. No black boxes. Understand exactly how the intrinsic value is derived so you can adjust assumptions with confidence.</div>
-            </div>
-          </li>
-          <li class="why-item fade-up">
-            <div class="why-icon-wrap">🇮🇳</div>
-            <div>
-              <div class="why-item-title">Built for Indian Markets</div>
-              <div class="why-item-desc">Works natively with Screener.in exports. Designed around NSE/BSE listed companies and Indian accounting standards.</div>
-            </div>
-          </li>
+
+            <p class="mt-3 text-center text-[10px] text-slate-400">Illustrative board view · research & analysis only, no real orders.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────  TRUST BAR  ───────────────────────── -->
+  <section class="border-y border-slate-100 bg-slate-50">
+    <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-10 gap-y-3 px-4 py-5 text-center lg:px-8">
+      <span class="text-xs font-semibold uppercase tracking-[0.15em] text-slate-400">Built for serious Indian-market participants</span>
+      <span class="hidden h-4 w-px bg-slate-200 sm:block"></span>
+      <span class="text-sm font-medium text-slate-500">Investors</span>
+      <span class="text-sm font-medium text-slate-500">Swing Traders</span>
+      <span class="text-sm font-medium text-slate-500">Chartered Accountants</span>
+      <span class="text-sm font-medium text-slate-500">Portfolio Managers</span>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────  PROBLEM → APPROACH  ───────────────────────── -->
+  <section class="mx-auto max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
+    <div class="reveal mx-auto max-w-2xl text-center">
+      <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">The market has 1,000+ stocks. You have one evening.</h2>
+      <p class="mt-4 text-lg text-slate-500">Screening by hand is slow, noisy and easy to get wrong. FundVisory does the scanning so you do the deciding.</p>
+    </div>
+
+    <div class="mt-14 grid gap-6 lg:grid-cols-2">
+      <!-- old way -->
+      <div class="reveal rounded-2xl border border-slate-200 bg-slate-50 p-8">
+        <div class="text-xs font-bold uppercase tracking-[0.15em] text-slate-400">Screening by hand</div>
+        <ul class="mt-5 space-y-3.5">
+          <li class="flex gap-3 text-sm text-slate-600"><span class="mt-0.5 text-rose-400">✕</span> Flip through dozens of charts every night, hoping to spot a setup before it runs.</li>
+          <li class="flex gap-3 text-sm text-slate-600"><span class="mt-0.5 text-rose-400">✕</span> No single number to compare two names — gut feel versus gut feel.</li>
+          <li class="flex gap-3 text-sm text-slate-600"><span class="mt-0.5 text-rose-400">✕</span> Miss the breakout because you weren't watching that stock today.</li>
+          <li class="flex gap-3 text-sm text-slate-600"><span class="mt-0.5 text-rose-400">✕</span> No record of what you looked at or how it actually played out.</li>
         </ul>
       </div>
-      <div class="why-cards-wrap fade-up">
-        <div class="metric-card">
-          <div class="metric-row">
+      <!-- new way -->
+      <div class="reveal rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-50 to-white p-8 shadow-card">
+        <div class="text-xs font-bold uppercase tracking-[0.15em] text-brand-600">The FundVisory way</div>
+        <ul class="mt-5 space-y-3.5">
+          <li class="flex gap-3 text-sm text-slate-700"><span class="mt-0.5 text-emerald-500">✓</span> A ranked board of the few names actually setting up — refreshed through the day.</li>
+          <li class="flex gap-3 text-sm text-slate-700"><span class="mt-0.5 text-emerald-500">✓</span> One 0–100 opportunity score per stock, built from trend, strength and breakout readiness.</li>
+          <li class="flex gap-3 text-sm text-slate-700"><span class="mt-0.5 text-emerald-500">✓</span> A Watchtower that flags names approaching a trigger before they move.</li>
+          <li class="flex gap-3 text-sm text-slate-700"><span class="mt-0.5 text-emerald-500">✓</span> A permanent journal and tracking ledger of every idea and how it played out.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────  HOW IT WORKS  ───────────────────────── -->
+  <section id="how" class="border-y border-slate-100 bg-slate-50">
+    <div class="mx-auto max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
+      <div class="reveal mx-auto max-w-2xl text-center">
+        <div class="text-xs font-bold uppercase tracking-[0.15em] text-brand-600">How FundVisory works</div>
+        <h2 class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">From 1,033 stocks to a handful worth your attention.</h2>
+      </div>
+
+      <div class="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="reveal rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100">
+          <div class="grid h-11 w-11 place-items-center rounded-xl bg-brand-50 text-lg font-bold text-brand-600">1</div>
+          <h3 class="mt-4 text-base font-bold text-slate-900">Scan</h3>
+          <p class="mt-2 text-sm leading-relaxed text-slate-500">Every NSE name is scanned daily for trend, relative strength, volume and breakout structure.</p>
+        </div>
+        <div class="reveal rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100">
+          <div class="grid h-11 w-11 place-items-center rounded-xl bg-brand-50 text-lg font-bold text-brand-600">2</div>
+          <h3 class="mt-4 text-base font-bold text-slate-900">Rank</h3>
+          <p class="mt-2 text-sm leading-relaxed text-slate-500">Each stock gets a single 0–100 opportunity score, so the strongest setups rise to the top.</p>
+        </div>
+        <div class="reveal rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100">
+          <div class="grid h-11 w-11 place-items-center rounded-xl bg-brand-50 text-lg font-bold text-brand-600">3</div>
+          <h3 class="mt-4 text-base font-bold text-slate-900">Construct</h3>
+          <p class="mt-2 text-sm leading-relaxed text-slate-500">For every idea you get a clear entry, stop and target plus the reasoning behind the trade.</p>
+        </div>
+        <div class="reveal rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-100">
+          <div class="grid h-11 w-11 place-items-center rounded-xl bg-brand-50 text-lg font-bold text-brand-600">4</div>
+          <h3 class="mt-4 text-base font-bold text-slate-900">Track</h3>
+          <p class="mt-2 text-sm leading-relaxed text-slate-500">A Watchtower and a permanent journal follow every name so nothing slips past you.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────  FEATURES / INSIDE THE PRODUCT  ───────────────────────── -->
+  <section id="features" class="mx-auto max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
+    <div id="inside" class="reveal mx-auto max-w-2xl text-center">
+      <div class="text-xs font-bold uppercase tracking-[0.15em] text-brand-600">Inside the product</div>
+      <h2 class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">Everything you need to find and follow the next move.</h2>
+    </div>
+
+    <!-- Feature 1: Opportunity Discovery Engine -->
+    <div class="mt-16 grid items-center gap-12 lg:grid-cols-2">
+      <div class="reveal">
+        <div class="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-600">Opportunity Discovery Engine</div>
+        <h3 class="mt-4 text-2xl font-bold tracking-tight text-slate-900">A ranked board of where the strength is — right now.</h3>
+        <p class="mt-3 text-base leading-relaxed text-slate-500">
+          The Opportunity Board ranks every actionable name by its 0–100 score and labels it
+          <span class="font-semibold text-emerald-600">Buy Now</span>,
+          <span class="font-semibold text-sky-600">Watch Closely</span>,
+          <span class="font-semibold text-slate-600">Wait</span> or
+          <span class="font-semibold text-rose-600">Avoid</span> — with entry, stop and target visible without a click.
+        </p>
+        <ul class="mt-5 space-y-2.5 text-sm text-slate-600">
+          <li class="flex gap-2.5"><span class="text-brand-500">→</span> Top Pick hero answers "where's the strongest opportunity?" instantly.</li>
+          <li class="flex gap-2.5"><span class="text-brand-500">→</span> Relative strength, sector rank and breakout readiness on every row.</li>
+          <li class="flex gap-2.5"><span class="text-brand-500">→</span> Refreshes through the day as the market moves.</li>
+        </ul>
+      </div>
+      <!-- mock: Opportunity Board table -->
+      <div class="reveal">
+        <div class="overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-slate-200">
+          <div class="winbar bg-slate-50"><i class="bg-rose-400"></i><i class="bg-amber-400"></i><i class="bg-emerald-400"></i><span class="ml-2 text-[11px] font-medium text-slate-400">Opportunity Board</span></div>
+          <table class="min-w-full text-sm">
+            <thead class="bg-slate-50 text-left text-[11px] uppercase tracking-wide text-slate-400">
+              <tr><th class="px-4 py-2.5">Score</th><th class="px-4 py-2.5">Symbol</th><th class="px-4 py-2.5">RS</th><th class="px-4 py-2.5">Entry</th><th class="px-4 py-2.5">Action</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 tnum">
+              <tr><td class="px-4 py-2.5 font-bold text-slate-900">86</td><td class="px-4 py-2.5 font-semibold">BHARATDYN</td><td class="px-4 py-2.5 text-emerald-600">+34</td><td class="px-4 py-2.5">₹1,642</td><td class="px-4 py-2.5"><span class="rounded bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">Buy Now</span></td></tr>
+              <tr><td class="px-4 py-2.5 font-bold text-slate-900">79</td><td class="px-4 py-2.5 font-semibold">KAYNES</td><td class="px-4 py-2.5 text-emerald-600">+28</td><td class="px-4 py-2.5">₹6,210</td><td class="px-4 py-2.5"><span class="rounded bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">Buy Now</span></td></tr>
+              <tr><td class="px-4 py-2.5 font-bold text-slate-900">74</td><td class="px-4 py-2.5 font-semibold">PERSISTENT</td><td class="px-4 py-2.5 text-emerald-600">+19</td><td class="px-4 py-2.5">₹5,840</td><td class="px-4 py-2.5"><span class="rounded bg-sky-100 px-2 py-0.5 text-[11px] font-semibold text-sky-700">Watch Closely</span></td></tr>
+              <tr><td class="px-4 py-2.5 font-bold text-slate-900">71</td><td class="px-4 py-2.5 font-semibold">CGPOWER</td><td class="px-4 py-2.5 text-emerald-600">+15</td><td class="px-4 py-2.5">₹742</td><td class="px-4 py-2.5"><span class="rounded bg-sky-100 px-2 py-0.5 text-[11px] font-semibold text-sky-700">Watch Closely</span></td></tr>
+              <tr><td class="px-4 py-2.5 font-bold text-slate-900">58</td><td class="px-4 py-2.5 font-semibold">TATAMOTORS</td><td class="px-4 py-2.5 text-slate-400">+3</td><td class="px-4 py-2.5">—</td><td class="px-4 py-2.5"><span class="rounded bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600">Wait</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature 2: Watchtower & Market Radar -->
+    <div class="mt-20 grid items-center gap-12 lg:grid-cols-2">
+      <!-- mock: Watchtower radar -->
+      <div class="reveal order-2 lg:order-1">
+        <div class="overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-slate-200">
+          <div class="winbar bg-slate-50"><i class="bg-rose-400"></i><i class="bg-amber-400"></i><i class="bg-emerald-400"></i><span class="ml-2 text-[11px] font-medium text-slate-400">Watchtower · approaching a trigger</span></div>
+          <div class="space-y-2.5 p-5">
+            <div class="flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 p-3.5">
+              <div class="flex items-center gap-3">
+                <span class="relative grid h-2.5 w-2.5 place-items-center"><span class="fv-pulse absolute inset-0 rounded-full"></span><span class="relative h-2.5 w-2.5 rounded-full bg-amber-500"></span></span>
+                <div><div class="text-sm font-bold text-slate-900">DIXON TECH</div><div class="text-[11px] text-slate-500">1.8% below breakout pivot</div></div>
+              </div>
+              <span class="rounded-md bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-700">Approaching</span>
+            </div>
+            <div class="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3.5">
+              <div class="flex items-center gap-3">
+                <span class="h-2.5 w-2.5 rounded-full bg-slate-300"></span>
+                <div><div class="text-sm font-bold text-slate-900">POLYCAB</div><div class="text-[11px] text-slate-500">Coiling under resistance · vol drying</div></div>
+              </div>
+              <span class="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600">Watching</span>
+            </div>
+            <div class="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 p-3.5">
+              <div class="flex items-center gap-3">
+                <span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+                <div><div class="text-sm font-bold text-slate-900">SUZLON</div><div class="text-[11px] text-slate-500">Triggered today · added to board</div></div>
+              </div>
+              <span class="rounded-md bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-700">Triggered</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal order-1 lg:order-2">
+        <div class="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-600">Watchtower &amp; Market Radar</div>
+        <h3 class="mt-4 text-2xl font-bold tracking-tight text-slate-900">Catch the setup before it triggers.</h3>
+        <p class="mt-3 text-base leading-relaxed text-slate-500">
+          The Watchtower follows names that are <span class="font-semibold text-slate-700">approaching a trigger</span> —
+          coiling under resistance, tightening on volume, nearing a breakout pivot — and tells you the moment
+          one fires and joins the board.
+        </p>
+        <ul class="mt-5 space-y-2.5 text-sm text-slate-600">
+          <li class="flex gap-2.5"><span class="text-brand-500">→</span> See what's about to move, not just what already has.</li>
+          <li class="flex gap-2.5"><span class="text-brand-500">→</span> A reason to check daily — there's always something approaching.</li>
+          <li class="flex gap-2.5"><span class="text-brand-500">→</span> Reads market regime so you know when to lean in or step back.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Feature 3: Deep Research & Stock Workspace -->
+    <div class="mt-20 grid items-center gap-12 lg:grid-cols-2">
+      <div class="reveal">
+        <div class="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-600">Deep Research &amp; Stock Workspace</div>
+        <h3 class="mt-4 text-2xl font-bold tracking-tight text-slate-900">A full research note on any NSE name, on demand.</h3>
+        <p class="mt-3 text-base leading-relaxed text-slate-500">
+          Search any listed stock and get a structured research report — Executive Summary, technical view,
+          sector context, trade setup, bull case, bear case and key risks — that reads like a desk analyst's note,
+          whether or not it's on the board today.
+        </p>
+        <ul class="mt-5 space-y-2.5 text-sm text-slate-600">
+          <li class="flex gap-2.5"><span class="text-brand-500">→</span> Verdict, score, stage, RS, sector rank and breakout readiness in one place.</li>
+          <li class="flex gap-2.5"><span class="text-brand-500">→</span> Entry, stop, target and a clear path-to-Top-Pick.</li>
+          <li class="flex gap-2.5"><span class="text-brand-500">→</span> Works for any NSE name — independent of board membership.</li>
+        </ul>
+      </div>
+      <!-- mock: Deep Dive report -->
+      <div class="reveal">
+        <div class="overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-slate-200">
+          <div class="winbar bg-slate-50"><i class="bg-rose-400"></i><i class="bg-amber-400"></i><i class="bg-emerald-400"></i><span class="ml-2 text-[11px] font-medium text-slate-400">Deep Dive · Research Report</span></div>
+          <div class="p-5">
+            <div class="flex items-center justify-between">
+              <div><div class="text-lg font-bold text-slate-900">PERSISTENT SYSTEMS</div><div class="text-xs text-slate-500">IT Services · Stage 2</div></div>
+              <span class="rounded-md bg-sky-100 px-2.5 py-1 text-xs font-bold text-sky-700">Watch Closely</span>
+            </div>
+            <div class="mt-4 rounded-xl bg-slate-50 p-3.5">
+              <div class="text-[10px] font-bold uppercase tracking-wide text-slate-400">Executive Summary</div>
+              <p class="mt-1.5 text-xs leading-relaxed text-slate-600">Leading the IT pack on relative strength and holding a tight base just below a multi-month pivot. A decisive close above ₹5,980 on volume sets up continuation toward the prior high.</p>
+            </div>
+            <div class="mt-3 grid grid-cols-3 gap-2 tnum text-center">
+              <div class="rounded-lg bg-white px-2 py-2 ring-1 ring-slate-100"><div class="text-[10px] text-slate-400">Entry</div><div class="text-sm font-bold text-slate-900">₹5,840</div></div>
+              <div class="rounded-lg bg-white px-2 py-2 ring-1 ring-slate-100"><div class="text-[10px] text-slate-400">Stop</div><div class="text-sm font-bold text-rose-600">₹5,520</div></div>
+              <div class="rounded-lg bg-white px-2 py-2 ring-1 ring-slate-100"><div class="text-[10px] text-slate-400">Target</div><div class="text-sm font-bold text-emerald-600">₹6,640</div></div>
+            </div>
+            <div class="mt-3 flex gap-2">
+              <span class="rounded-md bg-emerald-50 px-2 py-1 text-[10px] font-semibold text-emerald-700">Bull: RS leadership</span>
+              <span class="rounded-md bg-rose-50 px-2 py-1 text-[10px] font-semibold text-rose-700">Risk: needs volume</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature 4: Market Intelligence -->
+    <div class="mt-20 grid items-center gap-12 lg:grid-cols-2">
+      <!-- mock: sector bars -->
+      <div class="reveal order-2 lg:order-1">
+        <div class="overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-slate-200">
+          <div class="winbar bg-slate-50"><i class="bg-rose-400"></i><i class="bg-amber-400"></i><i class="bg-emerald-400"></i><span class="ml-2 text-[11px] font-medium text-slate-400">Market Intelligence · sector leadership</span></div>
+          <div class="space-y-3 p-5 tnum">
+            <div class="flex items-center justify-between rounded-lg bg-emerald-50 px-3 py-2"><span class="text-sm font-semibold text-slate-700">NIFTY · Regime</span><span class="rounded bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-700">Healthy · 68% above 200DMA</span></div>
+            <div><div class="mb-1 flex justify-between text-xs"><span class="font-medium text-slate-600">Defence</span><span class="font-semibold text-emerald-600">+8.4</span></div><div class="h-2 rounded-full bg-slate-100"><div class="h-2 rounded-full bg-emerald-500" style="width:88%"></div></div></div>
+            <div><div class="mb-1 flex justify-between text-xs"><span class="font-medium text-slate-600">Capital Goods</span><span class="font-semibold text-emerald-600">+6.1</span></div><div class="h-2 rounded-full bg-slate-100"><div class="h-2 rounded-full bg-emerald-500" style="width:72%"></div></div></div>
+            <div><div class="mb-1 flex justify-between text-xs"><span class="font-medium text-slate-600">IT Services</span><span class="font-semibold text-emerald-600">+3.5</span></div><div class="h-2 rounded-full bg-slate-100"><div class="h-2 rounded-full bg-emerald-400" style="width:54%"></div></div></div>
+            <div><div class="mb-1 flex justify-between text-xs"><span class="font-medium text-slate-600">FMCG</span><span class="font-semibold text-rose-500">−2.2</span></div><div class="h-2 rounded-full bg-slate-100"><div class="h-2 rounded-full bg-rose-400" style="width:28%"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal order-1 lg:order-2">
+        <div class="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-600">Market Intelligence</div>
+        <h3 class="mt-4 text-2xl font-bold tracking-tight text-slate-900">Know which way the wind is blowing.</h3>
+        <p class="mt-3 text-base leading-relaxed text-slate-500">
+          See market regime at a glance and which sectors are leading or lagging on relative strength —
+          so your opportunities are read in the context of the whole market, not in isolation.
+        </p>
+        <ul class="mt-5 space-y-2.5 text-sm text-slate-600">
+          <li class="flex gap-2.5"><span class="text-brand-500">→</span> NIFTY regime: healthy or weak, % of names above 200DMA.</li>
+          <li class="flex gap-2.5"><span class="text-brand-500">→</span> Sector leadership board ranked by relative strength.</li>
+          <li class="flex gap-2.5"><span class="text-brand-500">→</span> Trade with the leaders, avoid fighting the laggards.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Feature 5: Opportunity Tracking & Journal -->
+    <div class="mt-20 grid items-center gap-12 lg:grid-cols-2">
+      <div class="reveal">
+        <div class="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-600">Opportunity Tracking &amp; Journal</div>
+        <h3 class="mt-4 text-2xl font-bold tracking-tight text-slate-900">A permanent record of every idea — and how it played out.</h3>
+        <p class="mt-3 text-base leading-relaxed text-slate-500">
+          A daily journal snapshots the board, market regime and leaders at every close, and a tracking ledger
+          follows each signal's outcome. You build an honest, legible track record over time.
+        </p>
+        <ul class="mt-5 space-y-2.5 text-sm text-slate-600">
+          <li class="flex gap-2.5"><span class="text-brand-500">→</span> End-of-day journal you can scroll back through, day by day.</li>
+          <li class="flex gap-2.5"><span class="text-brand-500">→</span> Win rate, average gain/loss and R-multiples on closed ideas.</li>
+          <li class="flex gap-2.5"><span class="text-brand-500">→</span> Illustrative, paper-traded outcomes — no real orders are ever placed.</li>
+        </ul>
+      </div>
+      <!-- mock: scorecard -->
+      <div class="reveal">
+        <div class="overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-slate-200">
+          <div class="winbar bg-slate-50"><i class="bg-rose-400"></i><i class="bg-amber-400"></i><i class="bg-emerald-400"></i><span class="ml-2 text-[11px] font-medium text-slate-400">Tracking · rolling scorecard</span></div>
+          <div class="p-5">
+            <div class="grid grid-cols-3 gap-3 tnum text-center">
+              <div class="rounded-xl bg-slate-50 p-3"><div class="text-2xl font-extrabold text-slate-900">61%</div><div class="text-[10px] uppercase tracking-wide text-slate-400">Win rate</div></div>
+              <div class="rounded-xl bg-slate-50 p-3"><div class="text-2xl font-extrabold text-emerald-600">+12.4%</div><div class="text-[10px] uppercase tracking-wide text-slate-400">Avg gain</div></div>
+              <div class="rounded-xl bg-slate-50 p-3"><div class="text-2xl font-extrabold text-rose-600">−5.1%</div><div class="text-[10px] uppercase tracking-wide text-slate-400">Avg loss</div></div>
+            </div>
+            <div class="mt-3 space-y-1.5 tnum">
+              <div class="flex items-center justify-between rounded-lg px-3 py-2 text-sm hover:bg-slate-50"><span class="font-semibold text-slate-800">SUZLON</span><span class="font-semibold text-emerald-600">+2.3R · closed</span></div>
+              <div class="flex items-center justify-between rounded-lg px-3 py-2 text-sm hover:bg-slate-50"><span class="font-semibold text-slate-800">BHARATDYN</span><span class="font-semibold text-emerald-600">+1.1R · open</span></div>
+              <div class="flex items-center justify-between rounded-lg px-3 py-2 text-sm hover:bg-slate-50"><span class="font-semibold text-slate-800">RVNL</span><span class="font-semibold text-rose-600">−1.0R · stopped</span></div>
+            </div>
+            <p class="mt-3 text-center text-[10px] text-slate-400">Illustrative outcome tracking · no real orders.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Secondary module: Fair Value Analyzer -->
+    <div class="reveal mt-20 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+      <div class="grid items-center gap-6 p-8 lg:grid-cols-[1fr_auto] lg:p-10">
+        <div>
+          <div class="text-xs font-bold uppercase tracking-[0.15em] text-slate-400">Also included · secondary module</div>
+          <h3 class="mt-2 text-xl font-bold tracking-tight text-slate-900">Fair Value Analyzer</h3>
+          <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-500">
+            When you want the long-term lens, the Fair Value Analyzer estimates intrinsic value with DCF,
+            Graham and Dhandho approaches. It complements discovery — you find the opportunity on the board,
+            then sanity-check valuation here.
+          </p>
+        </div>
+        <a href="stock-analyzer.html"
+           class="inline-flex shrink-0 items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-600">
+          Open Fair Value Analyzer →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────  PRIVATE BETA + APPLICATION  ───────────────────────── -->
+  <section id="apply" class="fv-hero relative overflow-hidden py-20 lg:py-28">
+    <div class="fv-grid pointer-events-none absolute inset-0"></div>
+    <div class="relative mx-auto grid max-w-7xl items-start gap-14 px-4 lg:grid-cols-[1fr_1.05fr] lg:px-8">
+      <!-- pitch -->
+      <div>
+        <div class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-[12px] font-semibold tracking-wide text-brand-200">
+          <span class="relative grid h-2 w-2 place-items-center"><span class="absolute inline-flex h-2 w-2 animate-ping rounded-full bg-amber-400 opacity-75"></span><span class="relative inline-flex h-2 w-2 rounded-full bg-amber-400"></span></span>
+          JOIN THE FIRST 50 BETA USERS
+        </div>
+        <h2 class="mt-6 text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl">FundVisory is in private beta.</h2>
+        <p class="mt-4 max-w-lg text-lg leading-relaxed text-slate-300">
+          We're opening access to a small group of serious Indian-market participants. Request access below —
+          approved applicants receive an invite to set up their account and sign in at app.fundvisory.in.
+        </p>
+        <ul class="mt-7 space-y-3 text-sm text-slate-300">
+          <li class="flex gap-3"><span class="text-emerald-400">✓</span> Invite-only — every application is reviewed by hand.</li>
+          <li class="flex gap-3"><span class="text-emerald-400">✓</span> Your feedback directly shapes the product during beta.</li>
+          <li class="flex gap-3"><span class="text-emerald-400">✓</span> Research &amp; analysis only — paper-traded, no real orders.</li>
+        </ul>
+      </div>
+
+      <!-- form card -->
+      <div class="rounded-2xl bg-white p-6 shadow-glow ring-1 ring-black/5 sm:p-8">
+        <!-- hidden sink so the cross-origin POST doesn't navigate away -->
+        <iframe name="fv_apply_sink" title="application" class="hidden" tabindex="-1" aria-hidden="true"></iframe>
+
+        <form id="applyForm" action="https://app.fundvisory.in/apply" method="POST" target="fv_apply_sink" accept-charset="UTF-8" novalidate>
+          <h3 class="text-lg font-bold text-slate-900">Request Beta Access</h3>
+          <p class="mt-1 text-sm text-slate-500">Takes under a minute. We'll be in touch by email.</p>
+
+          <div class="mt-5 grid gap-4 sm:grid-cols-2">
+            <div class="sm:col-span-2">
+              <label class="text-xs font-semibold text-slate-600" for="f-name">Name</label>
+              <input id="f-name" name="name" type="text" required maxlength="120" autocomplete="name"
+                     class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100" placeholder="Your full name" />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="text-xs font-semibold text-slate-600" for="f-email">Email</label>
+              <input id="f-email" name="email" type="email" required maxlength="254" autocomplete="email"
+                     class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100" placeholder="you@example.com" />
+            </div>
             <div>
-              <div class="metric-label">10-Year Revenue CAGR</div>
-              <div class="metric-value" style="color:var(--green)">18.4%</div>
+              <label class="text-xs font-semibold text-slate-600" for="f-type">Investor Type</label>
+              <select id="f-type" name="investor_type"
+                      class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100">
+                <option>Investor</option>
+                <option>Trader</option>
+                <option>Chartered Accountant</option>
+                <option>Finance Professional</option>
+                <option>Portfolio Manager</option>
+                <option>Student</option>
+                <option>Other</option>
+              </select>
             </div>
-            <span class="badge-green">Excellent</span>
-          </div>
-          <div class="metric-bar-wrap">
-            <div class="metric-bar"><div class="metric-fill fill-green" style="width:75%"></div></div>
-          </div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-row">
             <div>
-              <div class="metric-label">Return on Equity (ROE)</div>
-              <div class="metric-value">24.1%</div>
+              <label class="text-xs font-semibold text-slate-600" for="f-freq">Market Participation</label>
+              <select id="f-freq" name="frequency"
+                      class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100">
+                <option>Daily</option>
+                <option>Weekly</option>
+                <option>Monthly</option>
+              </select>
             </div>
-            <span class="badge-green">Above 20%</span>
-          </div>
-          <div class="metric-bar-wrap">
-            <div class="metric-bar"><div class="metric-fill fill-gold" style="width:60%"></div></div>
-          </div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-row">
-            <div>
-              <div class="metric-label">Debt to Equity</div>
-              <div class="metric-value" style="color:var(--green)">0.12×</div>
+            <div class="sm:col-span-2">
+              <label class="text-xs font-semibold text-slate-600" for="f-obj">Primary Objective</label>
+              <select id="f-obj" name="objective"
+                      class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100">
+                <option>Swing Trading</option>
+                <option>Investing</option>
+                <option>Portfolio Management</option>
+                <option>Learning Markets</option>
+              </select>
             </div>
-            <span class="badge-green">Debt Free</span>
-          </div>
-          <div class="metric-bar-wrap">
-            <div class="metric-bar"><div class="metric-fill fill-blue" style="width:12%"></div></div>
-          </div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">Intrinsic Value Range</div>
-          <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--muted);">
-            <span>₹1,890 <small>Low</small></span>
-            <span style="color:var(--gold)">₹2,735 <small>Current</small></span>
-            <span>₹3,580 <small>High</small></span>
-          </div>
-          <div class="metric-bar-wrap">
-            <div class="metric-bar" style="height:8px">
-              <div class="metric-fill fill-green" style="width:55%"></div>
-              <div style="position:absolute;top:-4px;left:67%;width:16px;height:16px;background:var(--gold);border-radius:50%;border:2px solid var(--bg3);transform:translateX(-50%)"></div>
+            <div class="sm:col-span-2">
+              <label class="text-xs font-semibold text-slate-600" for="f-tools">Current Tools Used</label>
+              <input id="f-tools" name="tools_used" type="text" maxlength="500"
+                     class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100" placeholder="e.g. TradingView, Screener.in, broker terminal" />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="text-xs font-semibold text-slate-600" for="f-why">Why do you want access? <span class="font-normal text-slate-400">(optional)</span></label>
+              <textarea id="f-why" name="reason" rows="3" maxlength="2000"
+                        class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100" placeholder="Tell us a little about how you'd use FundVisory."></textarea>
             </div>
           </div>
-        </div>
-        <div class="metric-card" style="background:rgba(16,185,129,0.06);border-color:rgba(16,185,129,0.25)">
-          <div class="metric-row">
-            <div>
-              <div class="metric-label">Buffett Checklist Score</div>
-              <div class="metric-value" style="color:var(--green)">8 / 10</div>
-            </div>
-            <div style="font-size:28px">✅</div>
+
+          <p id="applyError" class="mt-3 hidden text-sm font-medium text-rose-600"></p>
+
+          <button id="applyBtn" type="submit"
+                  class="mt-5 w-full rounded-xl bg-brand-500 px-6 py-3.5 text-sm font-semibold text-white shadow-glow transition hover:bg-brand-400 disabled:opacity-60">
+            Request Access
+          </button>
+          <p class="mt-3 text-center text-[11px] text-slate-400">By applying you agree this is research &amp; educational software, not investment advice.</p>
+        </form>
+
+        <!-- success state -->
+        <div id="applySuccess" class="hidden">
+          <div class="grid place-items-center py-6 text-center">
+            <span class="grid h-14 w-14 place-items-center rounded-full bg-emerald-100 text-2xl text-emerald-600">✓</span>
+            <h3 class="mt-4 text-lg font-bold text-slate-900">Application received</h3>
+            <p class="mt-2 max-w-sm text-sm text-slate-500">Thanks for your interest in FundVisory. We review every application by hand — if you're approved, you'll get an invite by email to set up your account.</p>
           </div>
-          <div style="font-size:13px;color:var(--muted);margin-top:8px">Verdict: <strong style="color:var(--green)">Buy — Trading at Fair Value</strong></div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- HOW IT WORKS -->
-<section class="how-section" id="how">
-  <div class="container">
-    <div class="section-tag">How it Works</div>
-    <h2 class="section-title">Analysis in 3 Simple Steps</h2>
-    <p class="section-sub">No finance degree required. Just your stock's data from Screener.in and 30 seconds of your time.</p>
-    <div class="steps-grid">
-      <div class="step-card fade-up">
-        <div class="step-num">1</div>
-        <div class="step-title">Export from Screener.in</div>
-        <div class="step-desc">Go to any company on Screener.in, scroll to the bottom, and click "Export to Excel". That's your raw data file.</div>
+  <!-- ─────────────────────────  FAQ  ───────────────────────── -->
+  <section id="faq" class="mx-auto max-w-3xl px-4 py-20 lg:px-8 lg:py-28">
+    <div class="reveal text-center">
+      <div class="text-xs font-bold uppercase tracking-[0.15em] text-brand-600">FAQ</div>
+      <h2 class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">Questions, answered.</h2>
+    </div>
+
+    <div class="reveal mt-10 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white">
+      <details class="group p-5" open>
+        <summary class="flex cursor-pointer list-none items-center justify-between text-sm font-semibold text-slate-900">What exactly is FundVisory?<span class="ml-4 text-slate-400 transition group-open:rotate-45">+</span></summary>
+        <p class="mt-3 text-sm leading-relaxed text-slate-500">FundVisory is an Indian equity opportunity discovery platform. It continuously scans the NSE, ranks every name by a 0–100 opportunity score, and surfaces the few stocks setting up for a move — each with a clear entry, stop, target and the reasoning behind it.</p>
+      </details>
+      <details class="group p-5">
+        <summary class="flex cursor-pointer list-none items-center justify-between text-sm font-semibold text-slate-900">Is this a tip service or a buy/sell signal provider?<span class="ml-4 text-slate-400 transition group-open:rotate-45">+</span></summary>
+        <p class="mt-3 text-sm leading-relaxed text-slate-500">No. FundVisory is research &amp; analysis software. It helps you find and study opportunities and shows illustrative, paper-traded outcomes — it does not place orders, manage money, or provide personalised investment advice. Always do your own research and consult a SEBI-registered adviser.</p>
+      </details>
+      <details class="group p-5">
+        <summary class="flex cursor-pointer list-none items-center justify-between text-sm font-semibold text-slate-900">How is the opportunity score calculated?<span class="ml-4 text-slate-400 transition group-open:rotate-45">+</span></summary>
+        <p class="mt-3 text-sm leading-relaxed text-slate-500">Each stock is scored 0–100 from a blend of trend stage, relative strength versus the NIFTY, sector leadership, volume behaviour and breakout readiness. The stronger and cleaner the setup, the higher the score, so the best opportunities rise to the top of the board.</p>
+      </details>
+      <details class="group p-5">
+        <summary class="flex cursor-pointer list-none items-center justify-between text-sm font-semibold text-slate-900">What happened to the Fair Value Analyzer?<span class="ml-4 text-slate-400 transition group-open:rotate-45">+</span></summary>
+        <p class="mt-3 text-sm leading-relaxed text-slate-500">It's still here — now as a secondary module. FundVisory's primary job is discovering opportunities; the Fair Value Analyzer (DCF, Graham, Dhandho) is the long-term valuation lens you reach for once you've found a name worth studying.</p>
+      </details>
+      <details class="group p-5">
+        <summary class="flex cursor-pointer list-none items-center justify-between text-sm font-semibold text-slate-900">How do I get access during the private beta?<span class="ml-4 text-slate-400 transition group-open:rotate-45">+</span></summary>
+        <p class="mt-3 text-sm leading-relaxed text-slate-500">Request access using the form above. Every application is reviewed by hand. If you're approved, you'll receive an email invite to set up your password, after which you can sign in at app.fundvisory.in.</p>
+      </details>
+      <details class="group p-5">
+        <summary class="flex cursor-pointer list-none items-center justify-between text-sm font-semibold text-slate-900">Which market does it cover?<span class="ml-4 text-slate-400 transition group-open:rotate-45">+</span></summary>
+        <p class="mt-3 text-sm leading-relaxed text-slate-500">FundVisory is built for Indian equities and scans 1,033+ NSE-listed stocks daily. It's designed specifically around the NSE — sectors, regime and relative strength are all measured against the Indian market.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────  CTA BAND  ───────────────────────── -->
+  <section class="bg-slate-900">
+    <div class="mx-auto max-w-5xl px-4 py-16 text-center lg:px-8">
+      <h2 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">Stop screening. Start deciding.</h2>
+      <p class="mx-auto mt-4 max-w-xl text-lg text-slate-300">Let FundVisory do the scanning so you can spend your time on the few names that matter.</p>
+      <a href="#apply" class="mt-8 inline-flex rounded-xl bg-brand-500 px-7 py-3.5 text-sm font-semibold text-white shadow-glow transition hover:bg-brand-400">Request Beta Access →</a>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────  FOOTER  ───────────────────────── -->
+  <footer class="bg-slate-950 text-slate-400">
+    <div class="mx-auto max-w-7xl px-4 py-14 lg:px-8">
+      <div class="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
+        <div>
+          <div class="flex items-center gap-2.5">
+            <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-brand-400 to-brand-700 text-white">
+              <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5"><path d="M4 15l4-5 3.5 3.5L17 6l3 3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="text-[17px] font-bold tracking-tight text-white">FundVisory</span>
+          </div>
+          <p class="mt-4 max-w-sm text-sm leading-relaxed">An Indian equity opportunity discovery platform. Find where the money is likely to be made next.</p>
+        </div>
+        <div>
+          <div class="text-xs font-bold uppercase tracking-[0.15em] text-slate-500">Product</div>
+          <ul class="mt-4 space-y-2.5 text-sm">
+            <li><a href="#how" class="transition hover:text-white">How It Works</a></li>
+            <li><a href="#features" class="transition hover:text-white">Features</a></li>
+            <li><a href="stock-analyzer.html" class="transition hover:text-white">Fair Value Analyzer</a></li>
+            <li><a href="#faq" class="transition hover:text-white">FAQ</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="text-xs font-bold uppercase tracking-[0.15em] text-slate-500">Access</div>
+          <ul class="mt-4 space-y-2.5 text-sm">
+            <li><a href="#apply" class="transition hover:text-white">Join Private Beta</a></li>
+            <li><a href="https://app.fundvisory.in/login" class="transition hover:text-white">Sign In</a></li>
+          </ul>
+        </div>
       </div>
-      <div class="step-card fade-up">
-        <div class="step-num">2</div>
-        <div class="step-title">Upload & Set Assumptions</div>
-        <div class="step-desc">Drop the file into our tool. Enter Capex from the annual report and set your growth rate and discount rate assumptions.</div>
-      </div>
-      <div class="step-card fade-up">
-        <div class="step-num">3</div>
-        <div class="step-title">Get Your Verdict</div>
-        <div class="step-desc">See the intrinsic value range, Buffett checklist, margin of safety, and a clear Buy / Hold / Avoid recommendation.</div>
+
+      <div class="mt-12 border-t border-white/10 pt-8">
+        <p class="text-xs leading-relaxed text-slate-500">
+          <span class="font-semibold text-slate-400">Disclaimer:</span>
+          FundVisory is research &amp; educational software for Indian equity markets. It is <span class="font-semibold">not investment advice</span>,
+          a recommendation, or a solicitation to buy or sell any security. All scores, signals, entries, stops, targets and outcomes are
+          illustrative and <span class="font-semibold">paper-traded</span> — no real orders are ever placed. Markets carry risk, including loss of
+          capital; past performance does not guarantee future results. Always do your own research and consult a SEBI-registered investment
+          adviser before making any investment decision.
+        </p>
+        <p class="mt-6 text-xs text-slate-600">© <span id="yr">2026</span> FundVisory. All rights reserved.</p>
       </div>
     </div>
-  </div>
-</section>
+  </footer>
 
-<!-- PHILOSOPHY -->
-<section class="philosophy-section" id="philosophy">
-  <div class="container">
-    <div class="section-tag">Our Philosophy</div>
-    <h2 class="section-title">We Stand on the Shoulders<br/>of Giants</h2>
-    <p class="section-sub">Every tool we build is rooted in the timeless principles of the world's greatest investors.</p>
-    <div class="philosophy-grid">
-      <div class="phil-card fade-up">
-        <div class="phil-quote">"</div>
-        <div class="phil-text">Price is what you pay. Value is what you get. An investment operation is one which, upon thorough analysis, promises safety of principal and an adequate return.</div>
-        <div class="phil-author">— Benjamin Graham</div>
-      </div>
-      <div class="phil-card fade-up">
-        <div class="phil-quote">"</div>
-        <div class="phil-text">It's far better to buy a wonderful company at a fair price than a fair company at a wonderful price. The stock market is a device for transferring money from the impatient to the patient.</div>
-        <div class="phil-author">— Warren Buffett</div>
-      </div>
-      <div class="phil-card fade-up">
-        <div class="phil-quote">"</div>
-        <div class="phil-text">Heads, I win; tails, I don't lose much. Look for investments where the upside is many times the downside, and the probability of success is high.</div>
-        <div class="phil-author">— Mohnish Pabrai</div>
-      </div>
-    </div>
-  </div>
-</section>
+  <!-- ─────────────────────────  SCRIPTS  ───────────────────────── -->
+  <script>
+    // dynamic year
+    document.getElementById('yr').textContent = new Date().getFullYear();
 
-<!-- CTA -->
-<section class="cta-section">
-  <div class="cta-card">
-    <h2>Start Investing with Conviction</h2>
-    <p>Get your first stock analysis done in under a minute — completely free, no sign-up needed.</p>
-    <a href="stock-analyzer.html" class="btn-primary" style="display:inline-flex;font-size:16px;padding:16px 40px;">
-      🔍 Analyse a Stock Now — It's Free
-    </a>
-  </div>
-</section>
+    // nav solid-on-scroll
+    var nav = document.getElementById('nav');
+    function onScroll() { nav.classList.toggle('nav-solid', window.scrollY > 24); }
+    window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
 
-<!-- FOOTER -->
-<footer>
-  <div class="footer-grid">
-    <div class="footer-brand">
-      <a href="#" class="logo" style="font-size:20px">
-        <div class="logo-icon" style="width:28px;height:28px;font-size:14px">📈</div>
-        Fundvisory
-      </a>
-      <p>Professional stock analysis tools for the discerning Indian investor. Built on the principles of value investing.</p>
-      <div class="disclaimer">
-        ⚠️ Disclaimer: Fundvisory provides analysis tools for educational purposes only. Nothing on this site constitutes financial advice. Always do your own research before investing.
-      </div>
-    </div>
-    <div class="footer-col">
-      <h4>Tools</h4>
-      <ul>
-        <li><a href="stock-analyzer.html">Fair Value Analyzer</a></li>
-        <li><a href="#">Stock Screener <small style="color:var(--muted)">(Soon)</small></a></li>
-        <li><a href="#">Portfolio Analyzer <small style="color:var(--muted)">(Soon)</small></a></li>
-        <li><a href="#">SIP Calculator <small style="color:var(--muted)">(Soon)</small></a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h4>Learn</h4>
-      <ul>
-        <li><a href="#">How to use Screener.in</a></li>
-        <li><a href="#">Understanding DCF</a></li>
-        <li><a href="#">Value Investing Basics</a></li>
-        <li><a href="#">Margin of Safety</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h4>Company</h4>
-      <ul>
-        <li><a href="#">About</a></li>
-        <li><a href="#">Contact</a></li>
-        <li><a href="#">Privacy Policy</a></li>
-        <li><a href="#">Terms of Use</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <span>© 2025 Fundvisory. All rights reserved.</span>
-    <span>Made with ❤️ for Indian investors</span>
-  </div>
-</footer>
+    // scroll reveal
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
 
-<script>
-  // Scroll fade-in
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
-  }, { threshold: 0.1 });
-  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+    // application form: client-side validate, native cross-origin POST to the app, optimistic success
+    (function () {
+      var form = document.getElementById('applyForm');
+      var btn = document.getElementById('applyBtn');
+      var err = document.getElementById('applyError');
+      var success = document.getElementById('applySuccess');
+      var emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  // Smooth nav link scroll
-  document.querySelectorAll('a[href^="#"]').forEach(a => {
-    a.addEventListener('click', e => {
-      const target = document.querySelector(a.getAttribute('href'));
-      if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-    });
-  });
+      form.addEventListener('submit', function (ev) {
+        var name = form.elements['name'].value.trim();
+        var email = form.elements['email'].value.trim();
 
-  // Stagger fade-up delays
-  document.querySelectorAll('.tools-grid .tool-card, .steps-grid .step-card, .philosophy-grid .phil-card').forEach((el, i) => {
-    el.style.transitionDelay = `${i * 0.08}s`;
-    el.classList.add('fade-up');
-    observer.observe(el);
-  });
-</script>
+        if (!name || !email || !emailRe.test(email)) {
+          ev.preventDefault();
+          err.textContent = !name ? 'Please enter your name.' : 'Please enter a valid email address.';
+          err.classList.remove('hidden');
+          return;
+        }
+        err.classList.add('hidden');
+        // let the native POST proceed to the hidden iframe; show success optimistically
+        btn.disabled = true;
+        btn.textContent = 'Sending…';
+        setTimeout(function () {
+          form.classList.add('hidden');
+          success.classList.remove('hidden');
+          success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 500);
+      });
+    })();
+  </script>
 </body>
 </html>

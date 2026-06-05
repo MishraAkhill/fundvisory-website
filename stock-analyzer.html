@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fair Value Analyzer — Stock Analysis Tool</title>
+<title>Fair Value Analyzer — FundVisory</title>
+<meta name="description" content="The Fair Value Analyzer is a FundVisory module that estimates intrinsic value with DCF, Graham and Dhandho approaches for Indian equities. Research & educational only — not investment advice." />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
@@ -484,8 +485,17 @@ table.data-table {
   align-items: center;
   justify-content: space-between;
 }
-.nav-brand { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.nav-brand { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
 .nav-brand span { color: var(--accent); }
+.nav-home { display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--text); }
+.nav-home:hover { opacity: .85; }
+.nav-mark { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: linear-gradient(135deg, #5d80fa, #1a3cc4); color: #fff; }
+.nav-module { font-size: 11px; font-weight: 600; color: var(--text3); border-left: 1px solid var(--border); padding-left: 10px; text-transform: uppercase; letter-spacing: .08em; }
+.nav-actions { display: flex; align-items: center; gap: 16px; }
+.nav-link { font-size: 13px; font-weight: 600; color: var(--text2); text-decoration: none; }
+.nav-link:hover { color: var(--text); }
+.nav-cta { font-size: 13px; font-weight: 600; color: #fff; background: var(--accent); padding: 7px 14px; border-radius: 8px; text-decoration: none; }
+.nav-cta:hover { background: var(--accent2); }
 .nav-reset { font-size: 12px; color: var(--text3); cursor: pointer; border: none; background: none; padding: 0; }
 .nav-reset:hover { color: var(--text2); }
 
@@ -517,8 +527,20 @@ table.data-table {
 <body>
 
 <nav class="nav">
-  <div class="nav-brand">📊 <span>Fair Value</span> Analyzer</div>
-  <button class="nav-reset" onclick="resetApp()">↩ Start Over</button>
+  <div class="nav-brand">
+    <a class="nav-home" href="index.html" title="Back to FundVisory">
+      <span class="nav-mark">
+        <svg viewBox="0 0 24 24" fill="none" width="16" height="16"><path d="M4 15l4-5 3.5 3.5L17 6l3 3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      FundVisory
+    </a>
+    <span class="nav-module">Fair Value Analyzer</span>
+  </div>
+  <div class="nav-actions">
+    <a class="nav-link" href="index.html">← Back to FundVisory</a>
+    <button class="nav-reset" onclick="resetApp()">↩ Start Over</button>
+    <a class="nav-cta" href="index.html#apply">Join Beta</a>
+  </div>
 </nav>
 
 <div id="progress-bar"></div>
