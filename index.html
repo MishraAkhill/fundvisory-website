@@ -7,19 +7,44 @@
   <meta name="description" content="FundVisory helps investors discover opportunities and get structured views on stocks they already track. It continuously scans the NSE and surfaces the few stocks setting up for a move — with the entry, stop, target and the reasoning. Free to explore." />
 
   <!-- ============================================================
-       ANALYTICS — replace the two placeholder IDs below, then push.
-       GA4:     swap  G-XXXXXXXXXX  for your Measurement ID
-       Clarity: swap  CLARITYIDXXX  for your Project ID
-       (Both appear once here; nothing else to change.)
+       ANALYTICS — GA4 + Microsoft Clarity (production IDs live).
+       Cross-domain tracking spans fundvisory.in, www.fundvisory.in,
+       app.fundvisory.in so a visitor → app → signup is one journey.
        ============================================================ -->
 
   <!-- Google Analytics 4 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WY7VWJZ2V2"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-XXXXXXXXXX', { anonymize_ip: true });
+    gtag('config', 'G-WY7VWJZ2V2', {
+      anonymize_ip: true,
+      linker: { domains: ['fundvisory.in', 'www.fundvisory.in', 'app.fundvisory.in'] }
+    });
+
+    // Lightweight helper — safe no-op if gtag is blocked by an ad blocker.
+    window.fvTrack = function(name, params){
+      try { gtag('event', name, params || {}); } catch (e) {}
+    };
+
+    // Fire landing_page_view once the page is ready.
+    window.addEventListener('DOMContentLoaded', function(){
+      window.fvTrack('landing_page_view', {
+        page_location: location.href,
+        page_referrer: document.referrer || ''
+      });
+      // Any link into the app counts as enter_app (preserves UTM via linker).
+      document.querySelectorAll('a[href*="app.fundvisory.in"]').forEach(function(a){
+        a.addEventListener('click', function(){
+          var dest = a.getAttribute('href') || '';
+          window.fvTrack('enter_app', {
+            cta_text: (a.textContent || '').trim().slice(0, 60),
+            destination: dest
+          });
+        });
+      });
+    });
   </script>
 
   <!-- Microsoft Clarity -->
@@ -28,7 +53,7 @@
       c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
       t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
       y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "CLARITYIDXXX");
+    })(window, document, "clarity", "script", "x3a2fymx6u");
   </script>
   <!-- ============================================================ -->
   <meta name="robots" content="index, follow" />
